@@ -1,5 +1,10 @@
 # ranked-choice
 
+Run:
+```bash
+docker compose run rp-api go run main.go
+```
+
 ## UI Requirements
 Reactive and usable on both desktop and mobile.
 

@@ -1,0 +1,11 @@
+services:
+  rp-api:
+    container_name: rp-api
+    build: .
+    volumes:
+      - .:/app:delegated
+      - $GOPATH:/go
+      - $GOCACHE:/root/.cache/go-build
+    ports:
+      - 3000:3000
+    working_dir: /app
