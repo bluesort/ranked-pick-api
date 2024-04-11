@@ -2,31 +2,38 @@
 
 Access the local development DB:
 ```bash
-psql -d development
+sqlite3 db/sqlite3.db
 ```
 
 ## Migrations
 
-See [golang-migrate](https://github.com/golang-migrate/migrate/tree/master) for installation and additional documentation.
+See [golang-migrate](https://github.com/golang-migrate/migrate/tree/master) for additional documentation.
 
-[Postgres tutorial](https://github.com/golang-migrate/migrate/blob/master/database/postgres/TUTORIAL.md)
+[Command installation](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md)
+```bash
+go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+```
 
-Create a migration:
+```sh
+export DB_URL="sqlite3://db/sqlite3.db"
+```
+
+To create a migration:
 ```bash
 migrate create -ext sql -dir db/migrations -seq sample_migration_name
 ```
 
-Run up migrations:
+To run up migrations:
 ```bash
-migrate -database ${POSTGRESQL_URL} -path db/migrations up
+migrate -database ${DB_URL} -path db/migrations up
 ```
 
-To reset the DB, run all down migrations:
+To drop the db:
 ```bash
-migrate -database ${POSTGRESQL_URL} -path db/migrations down
+migrate -database ${DB_URL} -path db/migrations drop
 ```
 
 After a migration error is encountered, the DB is marked dirty and a migration version must be forced before any more migrations can be run:
 ```bash
-migrate -database ${POSTGRESQL_URL} -path db/migrations force <DB VERSION BEFORE ERROR>
+migrate -database ${DB_URL} -path db/migrations force <DB VERSION BEFORE ERROR>
 ```
