@@ -53,17 +53,12 @@ func main() {
 		log.Println("Migrations run")
 	}
 
-	// TODO: Rate limiting
-	log.Println("Creating routes...")
-	baseRouter := chi.NewRouter()
-	apiRouter := chi.NewRouter()
-	api.AddMiddleware(apiRouter)
-	api.AddRoutes(apiRouter)
-	baseRouter.Mount("/api", apiRouter)
-	log.Println("Routes created")
+	router := chi.NewRouter()
+	api.AddMiddleware(router)
+	api.AddRoutes(router)
 
-	log.Printf("Listening on port %d\n", cfg.Port)
-	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), baseRouter)
+	log.Printf("Router listening on port %d\n", cfg.Port)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), router)
 	if err != nil {
 		log.Println(err)
 	}

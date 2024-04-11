@@ -2,7 +2,7 @@
 
 Run:
 ```bash
-docker compose run rp-api
+docker compose run --service-ports rp-api
 ```
 
 ## UI Requirements

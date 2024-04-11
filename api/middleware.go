@@ -8,6 +8,7 @@ import (
 )
 
 func AddMiddleware(router *chi.Mux) {
+	// TODO: CORS, rate limit
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
