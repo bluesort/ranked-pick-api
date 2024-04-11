@@ -2,7 +2,7 @@
 
 Run:
 ```bash
-docker compose run rp-api go run main.go
+docker compose run rp-api
 ```
 
 ## UI Requirements
