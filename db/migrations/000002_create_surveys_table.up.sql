@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS surveys(
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
- CREATE UNIQUE INDEX idx_surveys_state_user ON surveys (state, user_id);
+CREATE UNIQUE INDEX idx_surveys_state_user ON surveys (state, user_id);
