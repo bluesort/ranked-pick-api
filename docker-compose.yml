@@ -9,4 +9,4 @@ services:
     ports:
       - 3000:3000
     working_dir: /app
-    command: go run main.go
+    command: sh -c "go build github.com/carterjackson/ranked-pick-api/cmd/ranked-pick-api && ./ranked-pick-api"

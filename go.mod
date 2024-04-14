@@ -1,4 +1,4 @@
-module github.com/carterjackson/ranked-choice
+module github.com/carterjackson/ranked-pick-api
 
 go 1.22.1
 
