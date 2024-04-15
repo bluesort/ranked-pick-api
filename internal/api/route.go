@@ -1,4 +1,4 @@
-package router
+package api
 
 import (
 	"encoding/json"
@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/carterjackson/ranked-pick-api/internal/common"
+	"github.com/carterjackson/ranked-pick-api/internal/config"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -15,7 +17,7 @@ type Route struct {
 	path   string
 }
 
-func Get(router *chi.Mux, path string) *Route {
+func Get(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "GET",
@@ -23,7 +25,7 @@ func Get(router *chi.Mux, path string) *Route {
 	}
 }
 
-func Post(router *chi.Mux, path string) *Route {
+func Post(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "POST",
@@ -31,7 +33,7 @@ func Post(router *chi.Mux, path string) *Route {
 	}
 }
 
-func Put(router *chi.Mux, path string) *Route {
+func Put(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "PUT",
@@ -41,20 +43,22 @@ func Put(router *chi.Mux, path string) *Route {
 
 func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, req *http.Request) {
+		ctx := common.NewContext()
+
 		var resp interface{}
 		var err error
 		switch h := handler.(type) {
-		case func(interface{}) (interface{}, error):
-			resp, err = h(nil)
-		case func(interface{}, interface{}) (interface{}, error):
+		case func(*common.Context) (interface{}, error):
+			resp, err = h(ctx)
+		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
 				panic(fmt.Sprintf("Missing paramStruct for path '%s'", r.path))
 			}
 
 			param := extractParams(req, paramStruct[0])
-			resp, err = h(nil, param)
+			resp, err = h(ctx, param)
 
-		case func(interface{}, int64) (interface{}, error):
+		case func(*common.Context, int64) (interface{}, error):
 			// TODO
 		default:
 			panic("Unrecognized handler")
