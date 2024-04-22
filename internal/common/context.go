@@ -1,18 +1,23 @@
 package common
 
 import (
+	"context"
+
 	"github.com/carterjackson/ranked-pick-api/internal/config"
-	"github.com/carterjackson/ranked-pick-api/internal/resources"
+	"github.com/carterjackson/ranked-pick-api/internal/db"
 )
 
-// TODO: Extend go context
 type Context struct {
+	context.Context
 	Config *config.AppConfig
-	User   *resources.User
+	User   *db.User
+	Db     *db.Queries
 }
 
-func NewContext(config *config.AppConfig) *Context {
+func NewContext() *Context {
 	return &Context{
-		Config: config,
+		Context: context.Background(),
+		Config:  config.Config,
+		Db:      config.Config.Db,
 	}
 }

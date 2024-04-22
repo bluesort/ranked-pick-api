@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/carterjackson/ranked-pick-api/internal/common"
-	"github.com/carterjackson/ranked-pick-api/internal/config"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -17,7 +16,7 @@ type Route struct {
 	path   string
 }
 
-func Get(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
+func Get(router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "GET",
@@ -25,7 +24,7 @@ func Get(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 	}
 }
 
-func Post(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
+func Post(router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "POST",
@@ -33,7 +32,7 @@ func Post(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 	}
 }
 
-func Put(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
+func Put(router *chi.Mux, path string) *Route {
 	return &Route{
 		router: router,
 		method: "PUT",
@@ -44,6 +43,8 @@ func Put(cfg *config.AppConfig, router *chi.Mux, path string) *Route {
 func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, req *http.Request) {
 		ctx := common.NewContext()
+
+		// TODO: tx
 
 		var resp interface{}
 		var err error
@@ -57,7 +58,6 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			param := extractParams(req, paramStruct[0])
 			resp, err = h(ctx, param)
-
 		case func(*common.Context, int64) (interface{}, error):
 			// TODO
 		default:

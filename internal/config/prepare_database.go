@@ -1,8 +1,10 @@
 package config
 
 import (
+	"database/sql"
 	"log"
 
+	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -10,6 +12,7 @@ import (
 
 // TODO: Move to migrate cmd
 func PrepareDatabase() {
+	// TODO: Move migration logic to cmd/migrate
 	dbMigrate, err := migrate.New(
 		"file://migrations",
 		"sqlite3://sqlite3.db",
@@ -27,7 +30,7 @@ func PrepareDatabase() {
 
 	if dbDirty {
 		dbForceVersion := dbVersion - 1
-		log.Printf("Database is dirty, forcing migration version %d", dbForceVersion)
+		log.Printf("Database is dirty, forcing version %d", dbForceVersion)
 		err = dbMigrate.Force(int(dbForceVersion))
 		if err != nil {
 			log.Fatal(err)
@@ -44,4 +47,12 @@ func PrepareDatabase() {
 	} else {
 		log.Println("Migrations run")
 	}
+
+	// TODO: Pull db url into env var
+	// Init db connection
+	dbConn, err := sql.Open("sqlite3", "sqlite3.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	Config.Db = db.New(dbConn)
 }

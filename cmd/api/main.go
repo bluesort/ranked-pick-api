@@ -13,15 +13,15 @@ import (
 func main() {
 	log.Println("Starting ranked-pick-api")
 
-	cfg := config.ParseConfig()
+	config.ParseConfig()
 	config.PrepareDatabase()
 
 	r := chi.NewRouter()
-	api.AddMiddleware(cfg, r)
-	api.AddRoutes(cfg, r)
+	api.AddMiddleware(r)
+	api.AddRoutes(r)
 
-	log.Printf("Router listening on port %d\n", cfg.Port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), r)
+	log.Printf("Router listening on port %d\n", config.Config.Port)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Config.Port), r)
 	if err != nil {
 		log.Println(err)
 	}

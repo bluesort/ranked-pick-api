@@ -1,17 +1,22 @@
 package config
 
-import "flag"
+import (
+	"flag"
+
+	"github.com/carterjackson/ranked-pick-api/internal/db"
+)
 
 type AppConfig struct {
 	Port int
 	Env  string
+	Db   *db.Queries
 }
 
-func ParseConfig() *AppConfig {
-	var cfg AppConfig
-	flag.IntVar(&cfg.Port, "port", 3000, "Port for the server to listen on")
-	flag.StringVar(&cfg.Env, "env", "development", "Environment the server is being run in, e.g. 'development'")
-	flag.Parse()
+var Config *AppConfig
 
-	return &cfg
+func ParseConfig() {
+	Config = &AppConfig{}
+	flag.IntVar(&Config.Port, "port", 3000, "Port for the server to listen on")
+	flag.StringVar(&Config.Env, "env", "development", "Environment the server is being run in, e.g. 'development'")
+	flag.Parse()
 }
