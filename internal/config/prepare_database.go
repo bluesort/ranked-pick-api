@@ -50,9 +50,9 @@ func PrepareDatabase() {
 
 	// TODO: Pull db url into env var
 	// Init db connection
-	dbConn, err := sql.Open("sqlite3", "sqlite3.db")
+	Config.Db, err = sql.Open("sqlite3", "sqlite3.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	Config.Db = db.New(dbConn)
+	Config.Queries = db.New(Config.Db)
 }

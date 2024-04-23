@@ -9,15 +9,13 @@ import (
 
 type Context struct {
 	context.Context
-	Config *config.AppConfig
-	User   *db.User
-	Db     *db.Queries
+	*config.AppConfig
+	User *db.User
 }
 
 func NewContext() *Context {
 	return &Context{
-		Context: context.Background(),
-		Config:  config.Config,
-		Db:      config.Config.Db,
+		Context:   context.Background(),
+		AppConfig: config.Config,
 	}
 }

@@ -1,15 +1,17 @@
 package config
 
 import (
+	"database/sql"
 	"flag"
 
 	"github.com/carterjackson/ranked-pick-api/internal/db"
 )
 
 type AppConfig struct {
-	Port int
-	Env  string
-	Db   *db.Queries
+	Port    int
+	Env     string
+	Db      *sql.DB
+	Queries *db.Queries
 }
 
 var Config *AppConfig

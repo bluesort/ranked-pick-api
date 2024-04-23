@@ -3,10 +3,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"reflect"
 
 	"github.com/carterjackson/ranked-pick-api/internal/common"
+	"github.com/carterjackson/ranked-pick-api/internal/config"
+	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -44,10 +47,8 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, req *http.Request) {
 		ctx := common.NewContext()
 
-		// TODO: tx
-
-		var resp interface{}
 		var err error
+		var resp interface{}
 		switch h := handler.(type) {
 		case func(*common.Context) (interface{}, error):
 			resp, err = h(ctx)
@@ -58,6 +59,26 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			param := extractParams(req, paramStruct[0])
 			resp, err = h(ctx, param)
+		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
+			if len(paramStruct) == 0 {
+				panic(fmt.Sprintf("Missing paramStruct for path '%s'", r.path))
+			}
+
+			param := extractParams(req, paramStruct[0])
+
+			tx, err := config.Config.Db.BeginTx(ctx, nil)
+			if err != nil {
+				panic(err)
+			}
+			defer tx.Rollback()
+			txQueries := config.Config.Queries.WithTx(tx)
+
+			resp, err = h(ctx, txQueries, param)
+
+			err = tx.Commit()
+			if err != nil {
+				panic(err)
+			}
 		case func(*common.Context, int64) (interface{}, error):
 			// TODO
 		default:
@@ -84,11 +105,15 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 }
 
 func extractParams(r *http.Request, paramStruct interface{}) interface{} {
-	if r.Method == "GET" {
-		paramType := reflect.ValueOf(paramStruct).Type()
-		params := reflect.New(paramType).Interface()
+	paramVal := reflect.ValueOf(paramStruct)
+	if paramVal.Kind() == reflect.Ptr {
+		paramVal = paramVal.Elem()
+	}
+	paramType := paramVal.Type()
+	params := reflect.New(paramType).Interface()
 
-		// encode and decode URL query params into the param struct
+	if r.Method == "GET" {
+		// marshal and unmarshal URL query params into the param struct
 		urlParams := r.URL.Query()
 		queryParams := make(map[string]interface{}, len(urlParams))
 		for k, v := range urlParams {
@@ -109,6 +134,14 @@ func extractParams(r *http.Request, paramStruct interface{}) interface{} {
 		return params
 	}
 
-	// TODO: post params
-	return nil
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&params)
+	if err == io.EOF {
+		// TODO: Return 422
+		panic("Missing request body")
+	} else if err != nil {
+		panic(err)
+	}
+
+	return params
 }
