@@ -45,6 +45,14 @@ func Put(router *chi.Mux, path string) *Route {
 	}
 }
 
+func Delete(router *chi.Mux, path string) *Route {
+	return &Route{
+		router: router,
+		method: "DELETE",
+		path:   path,
+	}
+}
+
 func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, req *http.Request) {
 		ctx := common.NewContext()
@@ -158,6 +166,8 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		r.router.Post(r.path, routeHandler)
 	case "PUT":
 		r.router.Put(r.path, routeHandler)
+	case "DELETE":
+		r.router.Delete(r.path, routeHandler)
 	}
 }
 

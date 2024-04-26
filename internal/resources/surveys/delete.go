@@ -6,5 +6,5 @@ import (
 )
 
 func Delete(ctx *common.Context, tx *db.Queries, id int64) error {
-	return nil
+	return tx.DeleteSurvey(ctx, id)
 }

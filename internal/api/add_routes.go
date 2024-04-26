@@ -11,4 +11,7 @@ func AddRoutes(router *chi.Mux) {
 	// Surveys
 	Get(router, "/surveys").Handler(surveys.List)
 	Post(router, "/surveys").Handler(surveys.Create, &surveys.CreateParams{})
+	Post(router, "/surveys/{id}").Handler(surveys.Update, &surveys.UpdateParams{})
+	Get(router, "/surveys/{id}").Handler(surveys.Get)
+	Delete(router, "/surveys/{id}").Handler(surveys.Delete)
 }

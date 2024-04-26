@@ -19,7 +19,6 @@ func NewInputError(message string) *InputError {
 }
 
 func WriteError(w http.ResponseWriter, err interface{}) {
-	// TODO: user input errors
 	switch errVal := err.(type) {
 	case InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
