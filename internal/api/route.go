@@ -2,10 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"reflect"
+	"strconv"
 
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/config"
@@ -46,52 +48,107 @@ func Put(router *chi.Mux, path string) *Route {
 func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, req *http.Request) {
 		ctx := common.NewContext()
+		w.Header().Set("Content-Type", "application/json")
 
 		var err error
 		var resp interface{}
 		switch h := handler.(type) {
 		case func(*common.Context) (interface{}, error):
 			resp, err = h(ctx)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				panic(fmt.Sprintf("Missing paramStruct for path '%s'", r.path))
+				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", r.path)))
+				return
 			}
 
-			param := extractParams(req, paramStruct[0])
-			resp, err = h(ctx, param)
+			params, err := extractParams(req, paramStruct[0])
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+			resp, err = h(ctx, params)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				panic(fmt.Sprintf("Missing paramStruct for path '%s'", r.path))
+				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", r.path)))
+				return
 			}
 
-			param := extractParams(req, paramStruct[0])
+			params, err := extractParams(req, paramStruct[0])
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				panic(err)
+				WriteError(w, err)
+				return
 			}
 			defer tx.Rollback()
 			txQueries := config.Config.Queries.WithTx(tx)
 
-			resp, err = h(ctx, txQueries, param)
+			resp, err = h(ctx, txQueries, params)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 
 			err = tx.Commit()
 			if err != nil {
-				panic(err)
+				WriteError(w, err)
+				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
-			// TODO
+			idStr := chi.URLParam(req, "id")
+			id, err := strconv.ParseInt(idStr, 10, 64)
+			if err != nil {
+				WriteError(w, "Invalid id")
+				return
+			}
+
+			resp, err = h(ctx, id)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+		case func(*common.Context, *db.Queries, int64) error:
+			idStr := chi.URLParam(req, "id")
+			id, err := strconv.ParseInt(idStr, 10, 64)
+			if err != nil {
+				WriteError(w, "Invalid id")
+				return
+			}
+
+			tx, err := config.Config.Db.BeginTx(ctx, nil)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+			defer tx.Rollback()
+			txQueries := config.Config.Queries.WithTx(tx)
+
+			err = h(ctx, txQueries, id)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 		default:
-			panic("Unrecognized handler")
-		}
-		if err != nil {
-			WriteError(w, err)
+			WriteError(w, errors.New("Unrecognized handler"))
 			return
 		}
 
-		json.NewEncoder(w).Encode(resp)
+		if resp != nil {
+			json.NewEncoder(w).Encode(resp)
+		}
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
 	}
 
 	switch r.method {
@@ -104,7 +161,7 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	}
 }
 
-func extractParams(r *http.Request, paramStruct interface{}) interface{} {
+func extractParams(r *http.Request, paramStruct interface{}) (interface{}, error) {
 	paramVal := reflect.ValueOf(paramStruct)
 	if paramVal.Kind() == reflect.Ptr {
 		paramVal = paramVal.Elem()
@@ -125,23 +182,22 @@ func extractParams(r *http.Request, paramStruct interface{}) interface{} {
 		}
 		encodedQueryParams, err := json.Marshal(queryParams)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		err = json.Unmarshal(encodedQueryParams, params)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
-		return params
+		return params, nil
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err == io.EOF {
-		// TODO: Return 422
-		panic("Missing request body")
+		return nil, NewInputError("Missing request body")
 	} else if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return params
+	return params, nil
 }

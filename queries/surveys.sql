@@ -6,6 +6,11 @@ WHERE id = ? LIMIT 1;
 SELECT * FROM surveys
 ORDER BY id DESC LIMIT 100;
 
+-- name: ListUserSurveys :many
+SELECT * FROM surveys
+WHERE user_id = ?
+ORDER BY id DESC LIMIT 100;
+
 -- name: CreateSurvey :one
 INSERT INTO surveys (
   user_id, title, state, visibility, description
