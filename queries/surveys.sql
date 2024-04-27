@@ -1,4 +1,4 @@
--- name: GetSurvey :one
+-- name: ReadSurvey :one
 SELECT * FROM surveys
 WHERE id = ? LIMIT 1;
 

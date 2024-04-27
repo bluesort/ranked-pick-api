@@ -12,9 +12,7 @@ import (
 
 func main() {
 	log.Println("Starting ranked-pick-api")
-
-	config.ParseConfig()
-	config.PrepareDatabase()
+	config.InitConfig()
 
 	r := chi.NewRouter()
 	api.AddMiddleware(r)

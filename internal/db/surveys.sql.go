@@ -59,27 +59,6 @@ func (q *Queries) DeleteSurvey(ctx context.Context, id int64) error {
 	return err
 }
 
-const getSurvey = `-- name: GetSurvey :one
-SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
-WHERE id = ? LIMIT 1
-`
-
-func (q *Queries) GetSurvey(ctx context.Context, id int64) (Survey, error) {
-	row := q.db.QueryRowContext(ctx, getSurvey, id)
-	var i Survey
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Title,
-		&i.State,
-		&i.Visibility,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const listSurveys = `-- name: ListSurveys :many
 SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
 ORDER BY id DESC LIMIT 100
@@ -115,6 +94,65 @@ func (q *Queries) ListSurveys(ctx context.Context) ([]Survey, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const listUserSurveys = `-- name: ListUserSurveys :many
+SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
+WHERE user_id = ?
+ORDER BY id DESC LIMIT 100
+`
+
+func (q *Queries) ListUserSurveys(ctx context.Context, userID int64) ([]Survey, error) {
+	rows, err := q.db.QueryContext(ctx, listUserSurveys, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Survey
+	for rows.Next() {
+		var i Survey
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.State,
+			&i.Visibility,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const readSurvey = `-- name: ReadSurvey :one
+SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
+WHERE id = ? LIMIT 1
+`
+
+func (q *Queries) ReadSurvey(ctx context.Context, id int64) (Survey, error) {
+	row := q.db.QueryRowContext(ctx, readSurvey, id)
+	var i Survey
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.State,
+		&i.Visibility,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateSurvey = `-- name: UpdateSurvey :one

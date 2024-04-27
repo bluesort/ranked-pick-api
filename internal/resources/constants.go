@@ -5,7 +5,6 @@ const (
 	SurveyStateGatheringOptions = "gathering_options"
 	SurveyStateVoting           = "voting"
 	SurveyStateClosed           = "closed"
-	SurveyStateDeleted          = "deleted"
 
 	SurveyVisibilityPublic  = "public"
 	SurveyVisibilityPrivate = "private"

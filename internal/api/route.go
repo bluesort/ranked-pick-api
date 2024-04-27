@@ -16,52 +16,56 @@ import (
 )
 
 type Route struct {
-	router *chi.Mux
-	method string
-	path   string
+	Router *chi.Mux
+	Method string
+	Path   string
 }
 
 func Get(router *chi.Mux, path string) *Route {
 	return &Route{
-		router: router,
-		method: "GET",
-		path:   path,
+		Router: router,
+		Method: "GET",
+		Path:   path,
 	}
 }
 
 func Post(router *chi.Mux, path string) *Route {
 	return &Route{
-		router: router,
-		method: "POST",
-		path:   path,
+		Router: router,
+		Method: "POST",
+		Path:   path,
 	}
 }
 
 func Put(router *chi.Mux, path string) *Route {
 	return &Route{
-		router: router,
-		method: "PUT",
-		path:   path,
+		Router: router,
+		Method: "PUT",
+		Path:   path,
 	}
 }
 
 func Delete(router *chi.Mux, path string) *Route {
 	return &Route{
-		router: router,
-		method: "DELETE",
-		path:   path,
+		Router: router,
+		Method: "DELETE",
+		Path:   path,
 	}
 }
 
-func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
-	routeHandler := func(w http.ResponseWriter, req *http.Request) {
-		ctx := common.NewContext()
+func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
+	routeHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		var err error
 		var resp interface{}
 		switch h := handler.(type) {
 		case func(*common.Context) (interface{}, error):
+			ctx, err := common.NewContext(r.Context())
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
 			resp, err = h(ctx)
 			if err != nil {
 				WriteError(w, err)
@@ -69,11 +73,17 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", r.path)))
+				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", route.Path)))
 				return
 			}
 
-			params, err := extractParams(req, paramStruct[0])
+			ctx, err := common.NewContext(r.Context())
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
 				WriteError(w, err)
 				return
@@ -85,11 +95,17 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", r.path)))
+				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", route.Path)))
 				return
 			}
 
-			params, err := extractParams(req, paramStruct[0])
+			ctx, err := common.NewContext(r.Context())
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
 				WriteError(w, err)
 				return
@@ -115,7 +131,13 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
-			idStr := chi.URLParam(req, "id")
+			ctx, err := common.NewContext(r.Context())
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
 				WriteError(w, "Invalid id")
@@ -128,7 +150,13 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) error:
-			idStr := chi.URLParam(req, "id")
+			ctx, err := common.NewContext(r.Context())
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
 				WriteError(w, "Invalid id")
@@ -159,15 +187,15 @@ func (r *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		w.WriteHeader(http.StatusOK)
 	}
 
-	switch r.method {
+	switch route.Method {
 	case "GET":
-		r.router.Get(r.path, routeHandler)
+		route.Router.Get(route.Path, routeHandler)
 	case "POST":
-		r.router.Post(r.path, routeHandler)
+		route.Router.Post(route.Path, routeHandler)
 	case "PUT":
-		r.router.Put(r.path, routeHandler)
+		route.Router.Put(route.Path, routeHandler)
 	case "DELETE":
-		r.router.Delete(r.path, routeHandler)
+		route.Router.Delete(route.Path, routeHandler)
 	}
 }
 
