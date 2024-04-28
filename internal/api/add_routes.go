@@ -1,13 +1,11 @@
 package api
 
 import (
-	"github.com/carterjackson/ranked-pick-api/internal/auth"
+	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/auth"
+	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/surveys"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
-	"github.com/carterjackson/ranked-pick-api/internal/resources/surveys"
 	"github.com/go-chi/chi/v5"
 )
-
-// TODO: move handlers to api/handlers package
 
 func AddRoutes(router *chi.Mux) {
 	Get(router, "/status").Handler(func(ctx *common.Context) (interface{}, error) {
@@ -15,6 +13,7 @@ func AddRoutes(router *chi.Mux) {
 	})
 
 	// Auth
+	Post(router, "/signup").Handler(auth.SignupHandler, &auth.SignupParams{})
 	Post(router, "/signin").Handler(auth.SigninHandler, &auth.SigninParams{})
 
 	// Surveys

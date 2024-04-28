@@ -1,13 +1,13 @@
-package auth
+package resources
 
 import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var HashCost = 12
+var PasswordHashCost = 12
 
 func HashPassword(password []byte) ([]byte, error) {
-	hash, err := bcrypt.GenerateFromPassword(password, HashCost)
+	hash, err := bcrypt.GenerateFromPassword(password, PasswordHashCost)
 	if err != nil {
 		return nil, err
 	}

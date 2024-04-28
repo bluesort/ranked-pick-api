@@ -41,7 +41,7 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	passwordHash, err := HashPassword([]byte(params.Password))
+	passwordHash, err := resources.HashPassword([]byte(params.Password))
 	if err != nil {
 		return nil, err
 	}
