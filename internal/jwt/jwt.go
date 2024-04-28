@@ -11,9 +11,11 @@ import (
 )
 
 type Claims struct {
-	UserId  int64     `json:"user_id"`
-	Expires time.Time `json:"expires"`
+	UserId int64     `json:"user_id"`
+	Exp    time.Time `json:"exp"`
 }
+
+var JwtTTL = 15 * time.Minute
 
 func AddMiddleware(router *chi.Mux) {
 	// Seek, verify and validate JWT tokensx
@@ -24,9 +26,9 @@ func AddMiddleware(router *chi.Mux) {
 }
 
 func NewToken(userId int64) (string, error) {
-	claims := &Claims{UserId: userId}
 	_, tokenString, err := config.Config.Auth.Encode(map[string]interface{}{
-		"user_id": claims.UserId,
+		"user_id": userId,
+		"exp":     jwtauth.ExpireIn(JwtTTL),
 	})
 	if err != nil {
 		return "", err
@@ -38,15 +40,15 @@ func NewToken(userId int64) (string, error) {
 func ParseClaims(ctx context.Context) (*Claims, error) {
 	_, claimsMap, _ := jwtauth.FromContext(ctx)
 
-	var claims *Claims
+	var claims Claims
 	encodedClaims, err := json.Marshal(claimsMap)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(encodedClaims, claims)
+	err = json.Unmarshal(encodedClaims, &claims)
 	if err != nil {
 		return nil, err
 	}
 
-	return claims, nil
+	return &claims, nil
 }

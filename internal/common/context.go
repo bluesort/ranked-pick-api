@@ -16,6 +16,7 @@ type Context struct {
 func NewContext(reqCtx context.Context) (*Context, error) {
 	claims, err := jwt.ParseClaims(reqCtx)
 	if err != nil {
+		// TODO: return auth error
 		return nil, err
 	}
 
