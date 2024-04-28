@@ -2,28 +2,20 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
+
+	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
 )
-
-type InputError struct {
-	Message string
-}
-
-func (m *InputError) Error() string {
-	return m.Message
-}
-
-func NewInputError(message string) *InputError {
-	return &InputError{Message: message}
-}
 
 func WriteError(w http.ResponseWriter, err interface{}) {
 	switch errVal := err.(type) {
-	case InputError:
+	case errors.InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte(errVal.Message))
 	case error:
+		log.Print(errVal)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("error"))
 	default:

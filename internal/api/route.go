@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 
+	api_errors "github.com/carterjackson/ranked-pick-api/internal/api/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/config"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
@@ -73,7 +74,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", route.Path)))
+				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
@@ -95,7 +96,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, errors.New(fmt.Sprintf("Missing paramStruct for path '%s'", route.Path)))
+				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
@@ -177,7 +178,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 		default:
-			WriteError(w, errors.New("Unrecognized handler"))
+			WriteError(w, errors.New("unrecognized handler"))
 			return
 		}
 
@@ -232,7 +233,7 @@ func extractParams(r *http.Request, paramStruct interface{}) (interface{}, error
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err == io.EOF {
-		return nil, NewInputError("Missing request body")
+		return nil, api_errors.NewInputError("missing request body")
 	} else if err != nil {
 		return nil, err
 	}

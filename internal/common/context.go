@@ -4,15 +4,13 @@ import (
 	"context"
 
 	"github.com/carterjackson/ranked-pick-api/internal/config"
-	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/carterjackson/ranked-pick-api/internal/jwt"
 )
 
 type Context struct {
 	context.Context
 	*config.AppConfig
-	User   *db.User
-	Claims *jwt.Claims
+	UserId int64
 }
 
 func NewContext(reqCtx context.Context) (*Context, error) {
@@ -21,9 +19,11 @@ func NewContext(reqCtx context.Context) (*Context, error) {
 		return nil, err
 	}
 
+	// TODO: Read user?
+
 	return &Context{
 		Context:   reqCtx,
 		AppConfig: config.Config,
-		Claims:    claims,
+		UserId:    claims.UserId,
 	}, nil
 }
