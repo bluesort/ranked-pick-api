@@ -17,12 +17,12 @@ import (
 )
 
 type Route struct {
-	Router *chi.Mux
+	Router chi.Router
 	Method string
 	Path   string
 }
 
-func Get(router *chi.Mux, path string) *Route {
+func Get(router chi.Router, path string) *Route {
 	return &Route{
 		Router: router,
 		Method: "GET",
@@ -30,7 +30,7 @@ func Get(router *chi.Mux, path string) *Route {
 	}
 }
 
-func Post(router *chi.Mux, path string) *Route {
+func Post(router chi.Router, path string) *Route {
 	return &Route{
 		Router: router,
 		Method: "POST",
@@ -38,7 +38,7 @@ func Post(router *chi.Mux, path string) *Route {
 	}
 }
 
-func Put(router *chi.Mux, path string) *Route {
+func Put(router chi.Router, path string) *Route {
 	return &Route{
 		Router: router,
 		Method: "PUT",
@@ -46,7 +46,7 @@ func Put(router *chi.Mux, path string) *Route {
 	}
 }
 
-func Delete(router *chi.Mux, path string) *Route {
+func Delete(router chi.Router, path string) *Route {
 	return &Route{
 		Router: router,
 		Method: "DELETE",
@@ -63,58 +63,58 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		case func(*common.Context) (interface{}, error):
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			resp, err = h(ctx)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				api_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 			resp, err = h(ctx, params)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				api_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -122,51 +122,51 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			resp, err = h(ctx, txQueries, params)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				WriteError(w, "Invalid id")
+				api_errors.WriteError(w, "Invalid id")
 				return
 			}
 
 			resp, err = h(ctx, id)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) error:
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				WriteError(w, "Invalid id")
+				api_errors.WriteError(w, "Invalid id")
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -174,11 +174,11 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			err = h(ctx, txQueries, id)
 			if err != nil {
-				WriteError(w, err)
+				api_errors.WriteError(w, err)
 				return
 			}
 		default:
-			WriteError(w, errors.New("unrecognized handler"))
+			api_errors.WriteError(w, errors.New("unrecognized handler"))
 			return
 		}
 

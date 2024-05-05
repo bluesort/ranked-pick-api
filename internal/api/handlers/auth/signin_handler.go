@@ -4,10 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
+	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
-	"github.com/carterjackson/ranked-pick-api/internal/jwt"
-	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 type SigninParams struct {
@@ -26,12 +25,12 @@ func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	err = resources.VerifyPassword([]byte(user.PasswordHash), []byte(params.Password))
+	err = auth.VerifyPassword([]byte(user.PasswordHash), []byte(params.Password))
 	if err != nil {
 		return nil, invalidCredsErr
 	}
 
-	token, err := jwt.NewToken(user.ID)
+	token, err := auth.NewToken(user.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,11 +1,42 @@
 package resources
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+	"net/mail"
+	"unicode"
+
+	"github.com/carterjackson/ranked-pick-api/internal/db"
+)
+
+type User struct {
+	Id          int64          `json:"id"`
+	Email       string         `json:"email"`
+	DisplayName sql.NullString `json:"display_name"`
+}
+
+func NewUser(user db.User) User {
+	return User{
+		Id:          user.ID,
+		Email:       user.Email,
+		DisplayName: user.DisplayName,
+	}
+}
 
 func ValidateEmail(email string) error {
 	if email == "" {
 		return errors.New("missing email")
 	}
+
+	if len(email) > 300 {
+		return errors.New("email must be less than 300 characters long")
+	}
+
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return errors.New("invalid email")
+	}
+
 	return nil
 }
 
@@ -13,6 +44,30 @@ func ValidatePassword(password string) error {
 	if password == "" {
 		return errors.New("missing password")
 	}
+
+	if len(password) < 8 {
+		return errors.New("password must be at least 8 characters long")
+	} else if len(password) > 55 {
+		return errors.New("password must be less than 55 characters long")
+	}
+
+	var hasNumber, hasSymbol, hasUppercase bool
+	for _, char := range password {
+		if unicode.IsSpace(char) {
+			return errors.New("password cannot contain spaces")
+		} else if unicode.IsUpper(char) {
+			hasUppercase = true
+		} else if unicode.IsDigit(char) {
+			hasNumber = true
+		} else if unicode.IsSymbol(char) {
+			hasSymbol = true
+		}
+	}
+
+	if !hasNumber || !hasSymbol || !hasUppercase {
+		return errors.New("password must contain at least one number, one symbol, and one uppercase letter")
+	}
+
 	return nil
 }
 
@@ -20,5 +75,10 @@ func ValidateDisplayName(displayName string) error {
 	if displayName == "" {
 		return errors.New("missing display name")
 	}
+
+	if len(displayName) > 50 {
+		return errors.New("display name must be less than 50 characters long")
+	}
+
 	return nil
 }

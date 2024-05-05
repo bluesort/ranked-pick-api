@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/auth"
+	auth_handlers "github.com/carterjackson/ranked-pick-api/internal/api/handlers/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/surveys"
+	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
-	"github.com/carterjackson/ranked-pick-api/internal/jwt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -22,19 +22,19 @@ func NewRouter() *chi.Mux {
 	})
 
 	// Auth
-	Post(router, "/signup").Handler(auth.SignupHandler, &auth.SignupParams{})
-	Post(router, "/signin").Handler(auth.SigninHandler, &auth.SigninParams{})
+	Post(router, "/signup").Handler(auth_handlers.SignupHandler, &auth_handlers.SignupParams{})
+	Post(router, "/signin").Handler(auth_handlers.SigninHandler, &auth_handlers.SigninParams{})
 
 	// Protected Routes
 	router.Group(func(authedRouter chi.Router) {
-		jwt.AddMiddleware(authedRouter)
+		auth.AddMiddleware(authedRouter)
 
 		// Surveys
-		Post(router, "/surveys").Handler(surveys.Create, &surveys.CreateParams{})
-		Get(router, "/surveys").Handler(surveys.List)
-		Get(router, "/surveys/{id}").Handler(surveys.Read)
-		Post(router, "/surveys/{id}").Handler(surveys.Update, &surveys.UpdateParams{})
-		Delete(router, "/surveys/{id}").Handler(surveys.Delete)
+		Post(authedRouter, "/surveys").Handler(surveys.Create, &surveys.CreateParams{})
+		Get(authedRouter, "/surveys").Handler(surveys.List)
+		Get(authedRouter, "/surveys/{id}").Handler(surveys.Read)
+		Post(authedRouter, "/surveys/{id}").Handler(surveys.Update, &surveys.UpdateParams{})
+		Delete(authedRouter, "/surveys/{id}").Handler(surveys.Delete)
 	})
 
 	return router

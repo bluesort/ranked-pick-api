@@ -4,23 +4,25 @@ import (
 	"database/sql"
 
 	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
+	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
-	"github.com/carterjackson/ranked-pick-api/internal/jwt"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 type SignupParams struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	DisplayName string `json:"displayName"`
+	DisplayName string `json:"display_name"`
+	AcceptedTos bool   `json:"accepted_tos"`
 }
 
 type SignupResponse struct {
-	Token string   `json:"token"`
-	User  *db.User `json:"user"`
+	Token string          `json:"token"`
+	User  *resources.User `json:"user"`
 }
 
+// TODO: Confirm email
 func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
 
@@ -46,12 +48,12 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	passwordHash, err := resources.HashPassword([]byte(params.Password))
+	passwordHash, err := auth.HashPassword([]byte(params.Password))
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := tx.CreateUser(ctx, db.CreateUserParams{
+	dbUser, err := tx.CreateUser(ctx, db.CreateUserParams{
 		Email:        params.Email,
 		DisplayName:  db.NewNullString(params.DisplayName),
 		PasswordHash: string(passwordHash),
@@ -60,10 +62,11 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	token, err := jwt.NewToken(user.ID)
+	token, err := auth.NewToken(dbUser.ID)
 	if err != nil {
 		return nil, err
 	}
 
+	user := resources.NewUser(dbUser)
 	return &SignupResponse{Token: token, User: &user}, nil
 }

@@ -10,7 +10,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-// TODO: Move to migrate cmd
 func PrepareDatabase() {
 	// TODO: Move migration logic to cmd/migrate
 	dbMigrate, err := migrate.New(
