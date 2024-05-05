@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"reflect"
 
@@ -11,13 +10,12 @@ import (
 
 func WriteError(w http.ResponseWriter, err interface{}) {
 	switch errVal := err.(type) {
-	case errors.InputError:
+	case *errors.InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(errVal.Message))
+		w.Write([]byte("\"" + errVal.Message + "\""))
 	case error:
-		log.Print(errVal)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("error"))
+		w.Write([]byte("\"error\""))
 	default:
 		var typeName string
 		if t := reflect.TypeOf(err); t.Kind() == reflect.Ptr {

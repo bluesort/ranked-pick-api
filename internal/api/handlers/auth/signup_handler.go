@@ -16,6 +16,11 @@ type SignupParams struct {
 	DisplayName string `json:"displayName"`
 }
 
+type SignupResponse struct {
+	Token string   `json:"token"`
+	User  *db.User `json:"user"`
+}
+
 func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
 
@@ -60,5 +65,5 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	return token, nil
+	return &SignupResponse{Token: token, User: &user}, nil
 }

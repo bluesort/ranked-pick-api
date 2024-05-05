@@ -17,11 +17,11 @@ type Claims struct {
 
 var JwtTTL = 15 * time.Minute
 
-func AddMiddleware(router *chi.Mux) {
-	// Seek, verify and validate JWT tokensx
+func AddMiddleware(router chi.Router) {
+	// Seek, verify and validate JWT tokens
 	router.Use(jwtauth.Verifier(config.Config.Auth))
 
-	// Handle valid / invalid tokens
+	// Handle valid/invalid tokens
 	router.Use(jwtauth.Authenticator(config.Config.Auth))
 }
 
