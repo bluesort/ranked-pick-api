@@ -3,10 +3,10 @@ package auth
 import (
 	"database/sql"
 
-	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 type SigninParams struct {

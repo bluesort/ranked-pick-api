@@ -9,10 +9,10 @@ import (
 	"reflect"
 	"strconv"
 
-	api_errors "github.com/carterjackson/ranked-pick-api/internal/api/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/config"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	rp_errors "github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -63,58 +63,58 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		case func(*common.Context) (interface{}, error):
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			resp, err = h(ctx)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				api_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				rp_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 			resp, err = h(ctx, params)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				api_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				rp_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -122,51 +122,51 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			resp, err = h(ctx, txQueries, params)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				api_errors.WriteError(w, "Invalid id")
+				rp_errors.WriteError(w, "Invalid id")
 				return
 			}
 
 			resp, err = h(ctx, id)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) error:
 			ctx, err := common.NewContext(r.Context())
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				api_errors.WriteError(w, "Invalid id")
+				rp_errors.WriteError(w, "Invalid id")
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -174,11 +174,11 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			err = h(ctx, txQueries, id)
 			if err != nil {
-				api_errors.WriteError(w, err)
+				rp_errors.WriteError(w, err)
 				return
 			}
 		default:
-			api_errors.WriteError(w, errors.New("unrecognized handler"))
+			rp_errors.WriteError(w, errors.New("unrecognized handler"))
 			return
 		}
 
@@ -233,7 +233,7 @@ func extractParams(r *http.Request, paramStruct interface{}) (interface{}, error
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	if err == io.EOF {
-		return nil, api_errors.NewInputError("missing request body")
+		return nil, rp_errors.NewInputError("missing request body")
 	} else if err != nil {
 		return nil, err
 	}

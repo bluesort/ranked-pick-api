@@ -2,18 +2,18 @@ package errors
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
-
-	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
 )
 
 func WriteError(w http.ResponseWriter, err interface{}) {
 	switch errVal := err.(type) {
-	case *errors.InputError:
+	case *InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("\"" + errVal.Message + "\""))
 	case error:
+		log.Print(errVal)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("\"error\""))
 	default:

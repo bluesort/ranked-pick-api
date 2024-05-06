@@ -3,18 +3,19 @@ package auth
 import (
 	"database/sql"
 
-	"github.com/carterjackson/ranked-pick-api/internal/api/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 type SignupParams struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	DisplayName string `json:"display_name"`
-	AcceptedTos bool   `json:"accepted_tos"`
+	Email                string `json:"email"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+	DisplayName          string `json:"display_name"`
+	AcceptedTos          bool   `json:"accepted_tos"`
 }
 
 type SignupResponse struct {
@@ -25,6 +26,14 @@ type SignupResponse struct {
 // TODO: Confirm email
 func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
+
+	if params.Password != params.PasswordConfirmation {
+		return nil, errors.NewInputError("password confirmation does not match")
+	}
+
+	if !params.AcceptedTos {
+		return nil, errors.NewInputError("you must accept the terms of service")
+	}
 
 	err := resources.ValidateEmail(params.Email)
 	if err != nil {

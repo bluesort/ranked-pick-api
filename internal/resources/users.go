@@ -2,11 +2,12 @@ package resources
 
 import (
 	"database/sql"
-	"errors"
 	"net/mail"
+	"slices"
 	"unicode"
 
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 type User struct {
@@ -14,6 +15,8 @@ type User struct {
 	Email       string         `json:"email"`
 	DisplayName sql.NullString `json:"display_name"`
 }
+
+var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~'}
 
 func NewUser(user db.User) User {
 	return User{
@@ -25,16 +28,16 @@ func NewUser(user db.User) User {
 
 func ValidateEmail(email string) error {
 	if email == "" {
-		return errors.New("missing email")
+		return errors.NewInputError("missing email")
 	}
 
 	if len(email) > 300 {
-		return errors.New("email must be less than 300 characters long")
+		return errors.NewInputError("email must be less than 300 characters long")
 	}
 
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return errors.New("invalid email")
+		return errors.NewInputError("invalid email")
 	}
 
 	return nil
@@ -42,30 +45,30 @@ func ValidateEmail(email string) error {
 
 func ValidatePassword(password string) error {
 	if password == "" {
-		return errors.New("missing password")
+		return errors.NewInputError("missing password")
 	}
 
 	if len(password) < 8 {
-		return errors.New("password must be at least 8 characters long")
+		return errors.NewInputError("password must be at least 8 characters long")
 	} else if len(password) > 55 {
-		return errors.New("password must be less than 55 characters long")
+		return errors.NewInputError("password must be less than 55 characters long")
 	}
 
 	var hasNumber, hasSymbol, hasUppercase bool
 	for _, char := range password {
 		if unicode.IsSpace(char) {
-			return errors.New("password cannot contain spaces")
+			return errors.NewInputError("password cannot contain spaces")
 		} else if unicode.IsUpper(char) {
 			hasUppercase = true
 		} else if unicode.IsDigit(char) {
 			hasNumber = true
-		} else if unicode.IsSymbol(char) {
+		} else if slices.Contains(acceptedPasswordSymbols, char) {
 			hasSymbol = true
 		}
 	}
 
 	if !hasNumber || !hasSymbol || !hasUppercase {
-		return errors.New("password must contain at least one number, one symbol, and one uppercase letter")
+		return errors.NewInputError("password must contain at least one number, one symbol, and one uppercase letter")
 	}
 
 	return nil
@@ -73,11 +76,11 @@ func ValidatePassword(password string) error {
 
 func ValidateDisplayName(displayName string) error {
 	if displayName == "" {
-		return errors.New("missing display name")
+		return errors.NewInputError("missing display name")
 	}
 
 	if len(displayName) > 50 {
-		return errors.New("display name must be less than 50 characters long")
+		return errors.NewInputError("display name must be less than 50 characters long")
 	}
 
 	return nil
