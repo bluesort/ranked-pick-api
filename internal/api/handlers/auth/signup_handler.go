@@ -18,11 +18,6 @@ type SignupParams struct {
 	AcceptedTos          bool   `json:"accepted_tos"`
 }
 
-type SignupResponse struct {
-	Token string          `json:"token"`
-	User  *resources.User `json:"user"`
-}
-
 // TODO: Confirm email
 func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
@@ -62,7 +57,7 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	dbUser, err := tx.CreateUser(ctx, db.CreateUserParams{
+	user, err := tx.CreateUser(ctx, db.CreateUserParams{
 		Email:        params.Email,
 		DisplayName:  db.NewNullString(params.DisplayName),
 		PasswordHash: string(passwordHash),
@@ -71,11 +66,11 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	token, err := auth.NewToken(dbUser.ID)
+	token, err := auth.NewToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	user := resources.NewUser(dbUser)
-	return &SignupResponse{Token: token, User: &user}, nil
+	userResp := resources.NewUser(user)
+	return &AuthResponse{Token: token, User: &userResp}, nil
 }
