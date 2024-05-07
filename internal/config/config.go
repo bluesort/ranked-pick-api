@@ -8,18 +8,20 @@ import (
 )
 
 type AppConfig struct {
-	Port    int
-	Env     string
-	Db      *sql.DB
-	Queries *db.Queries
-	Auth    *jwtauth.JWTAuth
+	Port             int
+	Env              string
+	Db               *sql.DB
+	Queries          *db.Queries
+	AccessTokenAuth  *jwtauth.JWTAuth
+	RefreshTokenAuth *jwtauth.JWTAuth
 }
 
 var Config *AppConfig
 
 func InitConfig() {
 	Config = &AppConfig{
-		Auth: jwtauth.New("HS256", []byte("secret"), nil), // TODO: Move secret to env
+		AccessTokenAuth:  jwtauth.New("HS256", []byte("secret1"), nil), // TODO: Move secret to env
+		RefreshTokenAuth: jwtauth.New("HS256", []byte("secret2"), nil), // TODO: Move secret to env
 	}
 	ParseFlags()
 	PrepareDatabase()

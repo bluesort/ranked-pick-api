@@ -20,6 +20,15 @@ type Survey struct {
 	UpdatedAt   time.Time
 }
 
+type TokenHash struct {
+	ID        int64
+	UserID    int64
+	Hash      string
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type User struct {
 	ID           int64
 	PasswordHash string

@@ -25,9 +25,14 @@ func NewRouter() *chi.Mux {
 	Post(router, "/signup").Handler(auth_handlers.SignupHandler, &auth_handlers.SignupParams{})
 	Post(router, "/signin").Handler(auth_handlers.SigninHandler, &auth_handlers.SigninParams{})
 
+	router.Group(func(refreshRouter chi.Router) {
+		auth.AddRefreshTokenMiddleware(refreshRouter)
+		// TODO
+	})
+
 	// Protected Routes
 	router.Group(func(authedRouter chi.Router) {
-		auth.AddMiddleware(authedRouter)
+		auth.AddAccessTokenMiddleware(authedRouter)
 
 		// Surveys
 		Post(authedRouter, "/surveys").Handler(surveys.Create, &surveys.CreateParams{})

@@ -31,8 +31,8 @@ func ValidateEmail(email string) error {
 		return errors.NewInputError("missing email")
 	}
 
-	if len(email) > 300 {
-		return errors.NewInputError("email must be less than 300 characters long")
+	if len(email) > 299 {
+		return errors.NewInputError("email must be less than 300 characters")
 	}
 
 	_, err := mail.ParseAddress(email)
@@ -49,9 +49,9 @@ func ValidatePassword(password string) error {
 	}
 
 	if len(password) < 8 {
-		return errors.NewInputError("password must be at least 8 characters long")
-	} else if len(password) > 55 {
-		return errors.NewInputError("password must be less than 55 characters long")
+		return errors.NewInputError("password must be at least 8 characters")
+	} else if len(password) > 71 {
+		return errors.NewInputError("password must be less than 72 characters")
 	}
 
 	var hasNumber, hasSymbol, hasUppercase bool
@@ -79,8 +79,8 @@ func ValidateDisplayName(displayName string) error {
 		return errors.NewInputError("missing display name")
 	}
 
-	if len(displayName) > 50 {
-		return errors.NewInputError("display name must be less than 50 characters long")
+	if len(displayName) > 49 {
+		return errors.NewInputError("display name must be less than 50 characters")
 	}
 
 	return nil

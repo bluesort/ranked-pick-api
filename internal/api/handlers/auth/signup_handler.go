@@ -52,7 +52,7 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	passwordHash, err := auth.HashPassword([]byte(params.Password))
+	passwordHash, err := auth.Hash([]byte(params.Password))
 	if err != nil {
 		return nil, err
 	}
@@ -66,11 +66,20 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	token, err := auth.NewToken(user.ID)
+	accessToken, err := auth.NewAccessToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := newRefreshToken(tx)
 	if err != nil {
 		return nil, err
 	}
 
 	userResp := resources.NewUser(user)
-	return &AuthResponse{Token: token, User: &userResp}, nil
+	return &AuthResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		User:         &userResp,
+	}, nil
 }

@@ -1,3 +1,11 @@
+-- name: CreateSurvey :one
+INSERT INTO surveys (
+  user_id, title, state, visibility, description
+) VALUES (
+  ?, ?, ?, ?, ?
+)
+RETURNING *;
+
 -- name: ReadSurvey :one
 SELECT * FROM surveys
 WHERE id = ? LIMIT 1;
@@ -10,14 +18,6 @@ ORDER BY id DESC LIMIT 100;
 SELECT * FROM surveys
 WHERE user_id = ?
 ORDER BY id DESC LIMIT 100;
-
--- name: CreateSurvey :one
-INSERT INTO surveys (
-  user_id, title, state, visibility, description
-) VALUES (
-  ?, ?, ?, ?, ?
-)
-RETURNING *;
 
 -- name: UpdateSurvey :one
 UPDATE surveys SET

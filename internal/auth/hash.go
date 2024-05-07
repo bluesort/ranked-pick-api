@@ -4,10 +4,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var PasswordHashCost = 12
+var HashCost = 12
 
-func HashPassword(password []byte) ([]byte, error) {
-	hash, err := bcrypt.GenerateFromPassword(password, PasswordHashCost)
+func Hash(plain []byte) ([]byte, error) {
+	hash, err := bcrypt.GenerateFromPassword(plain, HashCost)
 	if err != nil {
 		return nil, err
 	}

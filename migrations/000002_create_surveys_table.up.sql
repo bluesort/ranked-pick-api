@@ -1,4 +1,6 @@
-CREATE TABLE IF NOT EXISTS surveys(
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS surveys (
   id INTEGER PRIMARY KEY NOT NULL,
   user_id INTEGER NOT NULL,
   title VARCHAR(300) NOT NULL,
@@ -14,3 +16,5 @@ CREATE TABLE IF NOT EXISTS surveys(
 );
 
 CREATE UNIQUE INDEX idx_surveys_state_user ON surveys (state, user_id);
+
+COMMIT;

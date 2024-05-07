@@ -14,7 +14,7 @@ type Context struct {
 }
 
 func NewContext(reqCtx context.Context) (*Context, error) {
-	claims, err := auth.ParseClaims(reqCtx)
+	claims, err := auth.ParseAccessClaims(reqCtx)
 	if err != nil {
 		// TODO: return auth error
 		return nil, err

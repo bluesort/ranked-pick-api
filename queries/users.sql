@@ -1,3 +1,11 @@
+-- name: CreateUser :one
+INSERT INTO users (
+  password_hash, email, display_name
+) VALUES (
+  ?, ?, ?
+)
+RETURNING *;
+
 -- name: ReadUser :one
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
@@ -9,14 +17,6 @@ WHERE email = ? LIMIT 1;
 -- name: ListUsers :many
 SELECT * FROM users
 ORDER BY id DESC LIMIT 100;
-
--- name: CreateUser :one
-INSERT INTO users (
-  password_hash, email, display_name
-) VALUES (
-  ?, ?, ?
-)
-RETURNING *;
 
 -- name: UpdateUser :one
 UPDATE users SET
