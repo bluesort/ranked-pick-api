@@ -1,3 +1,3 @@
 package auth
 
-// TODO
+// TODO: delete refresh token hash from database

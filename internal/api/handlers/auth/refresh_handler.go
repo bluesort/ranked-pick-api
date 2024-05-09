@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
 )
@@ -10,17 +12,23 @@ type RefreshResponse struct {
 }
 
 func RefreshHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
-	// read refresh token from req
-
-	err := verifyRefreshToken(ctx, tx, params.RefreshToken)
+	refreshCookie, err := ctx.Req.Cookie("refresh_token")
 	if err != nil {
-		// TODO: return unauth error
-		return err, nil
+		return nil, err
 	}
+
+	fmt.Println(refreshCookie)
+
+	// err = verifyRefreshToken(ctx, tx, params.RefreshToken)
+	// if err != nil {
+	// 	// TODO: return unauth error
+	// 	return err, nil
+	// }
 
 	// issue new access token
 
-	return &RefreshResponse{
-		AccessToken: accessToken,
-	}, nil
+	return nil, nil
+	// return &RefreshResponse{
+	// 	AccessToken: accessToken,
+	// }, nil
 }

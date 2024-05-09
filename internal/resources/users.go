@@ -50,8 +50,6 @@ func ValidatePassword(password string) error {
 
 	if len(password) < 8 {
 		return errors.NewInputError("password must be at least 8 characters")
-	} else if len(password) > 71 {
-		return errors.NewInputError("password must be less than 72 characters")
 	}
 
 	var hasNumber, hasSymbol, hasUppercase bool

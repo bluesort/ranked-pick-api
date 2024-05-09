@@ -26,25 +26,31 @@ func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	err = auth.VerifyPassword([]byte(user.PasswordHash), []byte(params.Password))
+	err = auth.VerifyPassword(user.PasswordHash, params.Password)
 	if err != nil {
 		return nil, invalidCredsErr
 	}
 
-	accessToken, err := auth.NewAccessToken(user.ID)
+	accessToken, accessTokenExp, err := auth.NewAccessToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := newRefreshToken(tx)
+	refreshToken, refreshTokenExp, err := newRefreshToken(ctx, tx, user.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	userResp := resources.NewUser(user)
 	return &AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		User:         &userResp,
+		AccessToken: &TokenResponse{
+			Token: accessToken,
+			Exp:   accessTokenExp,
+		},
+		RefreshToken: &TokenResponse{
+			Token: refreshToken,
+			Exp:   refreshTokenExp,
+		},
+		User: &userResp,
 	}, nil
 }

@@ -14,7 +14,7 @@ func PrepareDatabase() {
 	// TODO: Move migration logic to cmd/migrate
 	dbMigrate, err := migrate.New(
 		"file://migrations",
-		"sqlite3://sqlite3.db",
+		"sqlite3://sqlite3.db?x-no-tx-wrap=true",
 	)
 	if err != nil {
 		log.Fatal(err)

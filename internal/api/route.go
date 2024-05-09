@@ -61,7 +61,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		var resp interface{}
 		switch h := handler.(type) {
 		case func(*common.Context) (interface{}, error):
-			ctx, err := common.NewContext(r.Context())
+			ctx, err := common.NewContext(r)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return
@@ -78,7 +78,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 
-			ctx, err := common.NewContext(r.Context())
+			ctx, err := common.NewContext(r)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return
@@ -100,7 +100,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 
-			ctx, err := common.NewContext(r.Context())
+			ctx, err := common.NewContext(r)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return
@@ -132,7 +132,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
-			ctx, err := common.NewContext(r.Context())
+			ctx, err := common.NewContext(r)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return
@@ -151,7 +151,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) error:
-			ctx, err := common.NewContext(r.Context())
+			ctx, err := common.NewContext(r)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return

@@ -42,11 +42,11 @@ func AddRefreshTokenMiddleware(router chi.Router) {
 	addMiddleware(router, config.Config.RefreshTokenAuth)
 }
 
-func NewAccessToken(userId int64) (string, *time.Time, error) {
+func NewAccessToken(userId int64) (string, time.Time, error) {
 	return newToken(config.Config.AccessTokenAuth, AccessTokenTTL, userId)
 }
 
-func NewRefreshToken(userId int64) (string, *time.Time, error) {
+func NewRefreshToken(userId int64) (string, time.Time, error) {
 	return newToken(config.Config.RefreshTokenAuth, RefreshTokenTTL, userId)
 }
 
@@ -58,15 +58,15 @@ func addMiddleware(router chi.Router, auth *jwtauth.JWTAuth) {
 	router.Use(jwtauth.Authenticator(auth))
 }
 
-func newToken(auth *jwtauth.JWTAuth, ttl time.Duration, userId int64) (string, *time.Time, error) {
+func newToken(auth *jwtauth.JWTAuth, ttl time.Duration, userId int64) (string, time.Time, error) {
 	expiresAtUnix := jwtauth.ExpireIn(ttl)
 	_, tokenString, err := auth.Encode(map[string]interface{}{
 		"user_id": userId,
 		"exp":     expiresAtUnix,
 	})
 	if err != nil {
-		return "", nil, err
+		return "", time.Time{}, err
 	}
 	expiresAt := time.Unix(expiresAtUnix, 0)
-	return tokenString, &expiresAt, nil
+	return tokenString, expiresAt, nil
 }

@@ -60,26 +60,32 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 	user, err := tx.CreateUser(ctx, db.CreateUserParams{
 		Email:        params.Email,
 		DisplayName:  db.NewNullString(params.DisplayName),
-		PasswordHash: string(passwordHash),
+		PasswordHash: passwordHash,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := auth.NewAccessToken(user.ID)
+	accessToken, accessTokenExp, err := auth.NewAccessToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := newRefreshToken(tx)
+	refreshToken, refreshTokenExp, err := newRefreshToken(ctx, tx, user.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	userResp := resources.NewUser(user)
 	return &AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		User:         &userResp,
+		AccessToken: &TokenResponse{
+			Token: accessToken,
+			Exp:   accessTokenExp,
+		},
+		RefreshToken: &TokenResponse{
+			Token: refreshToken,
+			Exp:   refreshTokenExp,
+		},
+		User: &userResp,
 	}, nil
 }

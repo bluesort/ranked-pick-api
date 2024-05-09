@@ -22,12 +22,12 @@ func NewRouter() *chi.Mux {
 	})
 
 	// Auth
-	Post(router, "/signup").Handler(auth_handlers.SignupHandler, &auth_handlers.SignupParams{})
-	Post(router, "/signin").Handler(auth_handlers.SigninHandler, &auth_handlers.SigninParams{})
+	Post(router, "/auth/signup").Handler(auth_handlers.SignupHandler, &auth_handlers.SignupParams{})
+	Post(router, "/auth/signin").Handler(auth_handlers.SigninHandler, &auth_handlers.SigninParams{})
 
 	router.Group(func(refreshRouter chi.Router) {
 		auth.AddRefreshTokenMiddleware(refreshRouter)
-		// TODO
+		Post(refreshRouter, "/auth/refresh").Handler(auth_handlers.RefreshHandler)
 	})
 
 	// Protected Routes
