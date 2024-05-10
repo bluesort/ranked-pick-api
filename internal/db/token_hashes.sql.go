@@ -10,23 +10,23 @@ import (
 	"time"
 )
 
-const createTokenHash = `-- name: CreateTokenHash :one
-INSERT INTO token_hashes (
-	user_id, hash, expires_at
-) VALUES (
-  ?, ?, ?
-)
-RETURNING id, user_id, hash, expires_at, created_at, updated_at
+const deleteTokenHash = `-- name: DeleteTokenHash :exec
+DELETE FROM token_hashes
+WHERE hash = ?
 `
 
-type CreateTokenHashParams struct {
-	UserID    int64
-	Hash      string
-	ExpiresAt time.Time
+func (q *Queries) DeleteTokenHash(ctx context.Context, hash string) error {
+	_, err := q.db.ExecContext(ctx, deleteTokenHash, hash)
+	return err
 }
 
-func (q *Queries) CreateTokenHash(ctx context.Context, arg CreateTokenHashParams) (TokenHash, error) {
-	row := q.db.QueryRowContext(ctx, createTokenHash, arg.UserID, arg.Hash, arg.ExpiresAt)
+const readTokenHashByUserId = `-- name: ReadTokenHashByUserId :one
+SELECT id, user_id, hash, expires_at, created_at, updated_at FROM token_hashes
+WHERE user_id = ? LIMIT 1
+`
+
+func (q *Queries) ReadTokenHashByUserId(ctx context.Context, userID int64) (TokenHash, error) {
+	row := q.db.QueryRowContext(ctx, readTokenHashByUserId, userID)
 	var i TokenHash
 	err := row.Scan(
 		&i.ID,
@@ -39,23 +39,26 @@ func (q *Queries) CreateTokenHash(ctx context.Context, arg CreateTokenHashParams
 	return i, err
 }
 
-const deleteTokenHash = `-- name: DeleteTokenHash :exec
-DELETE FROM token_hashes
-WHERE hash = ?
+const upsertTokenHash = `-- name: UpsertTokenHash :one
+INSERT INTO token_hashes (
+	user_id, hash, expires_at
+) VALUES (
+  ?, ?, ?
+)
+ON CONFLICT (user_id) DO UPDATE SET
+	hash = EXCLUDED.hash,
+	expires_at = EXCLUDED.expires_at
+RETURNING id, user_id, hash, expires_at, created_at, updated_at
 `
 
-func (q *Queries) DeleteTokenHash(ctx context.Context, hash string) error {
-	_, err := q.db.ExecContext(ctx, deleteTokenHash, hash)
-	return err
+type UpsertTokenHashParams struct {
+	UserID    int64
+	Hash      string
+	ExpiresAt time.Time
 }
 
-const readTokenHashByHash = `-- name: ReadTokenHashByHash :one
-SELECT id, user_id, hash, expires_at, created_at, updated_at FROM token_hashes
-WHERE hash = ? LIMIT 1
-`
-
-func (q *Queries) ReadTokenHashByHash(ctx context.Context, hash string) (TokenHash, error) {
-	row := q.db.QueryRowContext(ctx, readTokenHashByHash, hash)
+func (q *Queries) UpsertTokenHash(ctx context.Context, arg UpsertTokenHashParams) (TokenHash, error) {
+	row := q.db.QueryRowContext(ctx, upsertTokenHash, arg.UserID, arg.Hash, arg.ExpiresAt)
 	var i TokenHash
 	err := row.Scan(
 		&i.ID,

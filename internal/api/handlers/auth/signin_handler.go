@@ -26,7 +26,7 @@ func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	err = auth.VerifyPassword(user.PasswordHash, params.Password)
+	err = auth.VerifyPlainWithHash(params.Password, user.PasswordHash)
 	if err != nil {
 		return nil, invalidCredsErr
 	}
@@ -36,7 +36,8 @@ func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	err = setRefreshToken(ctx, tx, ctx.Resp, user.ID)
+	ctx.UserId = user.ID
+	err = setRefreshToken(ctx, tx, ctx.Resp)
 	if err != nil {
 		return nil, err
 	}

@@ -19,21 +19,21 @@ const (
 	HashSaltLen = 32
 )
 
-func Hash(plain []byte) (string, error) {
+func Hash(plain string) (string, error) {
 	salt := make([]byte, HashSaltLen)
 	_, err := rand.Read(salt)
 	if err != nil {
 		return "", err
 	}
 
-	key := argon2.IDKey(plain, salt, HashTime, HashMemory, HashThreads, HashKeyLen)
+	key := argon2.IDKey([]byte(plain), salt, HashTime, HashMemory, HashThreads, HashKeyLen)
 	toHash := append(key, salt...)
 	b64 := base64.StdEncoding.EncodeToString(toHash)
 
 	return b64, nil
 }
 
-func VerifyPassword(encodedHash string, password string) error {
+func VerifyPlainWithHash(plain string, encodedHash string) error {
 	decoded, err := base64.StdEncoding.DecodeString(string(encodedHash))
 	if err != nil {
 		return err
@@ -41,10 +41,10 @@ func VerifyPassword(encodedHash string, password string) error {
 	storedHash := decoded[:HashKeyLen]
 	salt := decoded[HashKeyLen:]
 
-	passwordHash := argon2.IDKey([]byte(password), salt, HashTime, HashMemory, HashThreads, HashKeyLen)
-	if !bytes.Equal(storedHash, passwordHash) {
+	plainHash := argon2.IDKey([]byte(plain), salt, HashTime, HashMemory, HashThreads, HashKeyLen)
+	if !bytes.Equal(storedHash, plainHash) {
 		// TODO: auth error
-		return errors.New("invalid password")
+		return errors.New("invalid plain")
 	}
 
 	return nil

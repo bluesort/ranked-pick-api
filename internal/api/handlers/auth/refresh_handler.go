@@ -7,14 +7,14 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
-func RefreshHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
+func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 	userId := ctx.UserId
-	refreshCookie, err := ctx.Req.Cookie("refresh_token")
+	refreshCookie, err := ctx.Req.Cookie("jwt")
 	if err != nil {
 		return nil, err
 	}
 
-	err = verifyRefreshToken(ctx, tx, refreshCookie.Value, userId)
+	err = verifyRefreshToken(ctx, tx, refreshCookie.Value)
 	if err != nil {
 		return nil, err
 	}

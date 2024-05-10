@@ -58,6 +58,7 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 	routeHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
+		// TODO: Dry up handlers
 		var resp interface{}
 		switch h := handler.(type) {
 		case func(*common.Context) (interface{}, error):
@@ -121,6 +122,32 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			txQueries := config.Config.Queries.WithTx(tx)
 
 			resp, err = h(ctx, txQueries, params)
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+		case func(*common.Context, *db.Queries) (interface{}, error):
+			ctx, err := common.NewContext(w, r)
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+
+			tx, err := config.Config.Db.BeginTx(ctx, nil)
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+			defer tx.Rollback()
+			txQueries := config.Config.Queries.WithTx(tx)
+
+			resp, err = h(ctx, txQueries)
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return

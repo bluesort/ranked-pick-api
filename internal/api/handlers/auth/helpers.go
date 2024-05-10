@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
@@ -21,19 +20,19 @@ type AuthResponse struct {
 	User        *resources.User `json:"user"`
 }
 
-func newRefreshToken(ctx *common.Context, tx *db.Queries, userId int64) (string, time.Time, error) {
-	token, expiresAt, err := auth.NewRefreshToken(userId)
+func createRefreshToken(ctx *common.Context, tx *db.Queries) (string, time.Time, error) {
+	token, expiresAt, err := auth.NewRefreshToken(ctx.UserId)
 	if err != nil {
 		return "", time.Time{}, err
 	}
 
-	tokenHash, err := auth.Hash([]byte(token))
+	tokenHash, err := auth.Hash(token)
 	if err != nil {
 		return "", time.Time{}, err
 	}
 
-	_, err = tx.CreateTokenHash(ctx, db.CreateTokenHashParams{
-		UserID:    userId,
+	_, err = tx.UpsertTokenHash(ctx, db.UpsertTokenHashParams{
+		UserID:    ctx.UserId,
 		Hash:      string(tokenHash),
 		ExpiresAt: expiresAt,
 	})
@@ -44,30 +43,34 @@ func newRefreshToken(ctx *common.Context, tx *db.Queries, userId int64) (string,
 	return token, expiresAt, nil
 }
 
-func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWriter, userId int64) error {
-	token, exp, err := newRefreshToken(ctx, tx, userId)
+func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWriter) error {
+	token, exp, err := createRefreshToken(ctx, tx)
 	if err != nil {
 		return err
 	}
-	resp.Header().Set("Set-Cookie", "refresh_token="+token+"; Path=/auth/refresh; Expires="+exp.Format(time.RFC1123)+"; HttpOnly")
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  exp,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		Path:     "/api/auth/refresh",
+	}
+	http.SetCookie(resp, &cookie)
 
 	return nil
 }
 
-func verifyRefreshToken(ctx *common.Context, tx *db.Queries, token string, userId int64) error {
-	tokenHash, err := auth.Hash([]byte(token))
+func verifyRefreshToken(ctx *common.Context, tx *db.Queries, token string) error {
+	dbTokenHash, err := tx.ReadTokenHashByUserId(ctx, ctx.UserId)
 	if err != nil {
 		return err
 	}
 
-	dbTokenHash, err := tx.ReadTokenHashByHash(ctx, string(tokenHash))
+	err = auth.VerifyPlainWithHash(token, dbTokenHash.Hash)
 	if err != nil {
 		return err
-	}
-
-	if dbTokenHash.UserID != userId {
-		// TODO: auth error
-		return errors.New("invalid user")
 	}
 
 	return nil

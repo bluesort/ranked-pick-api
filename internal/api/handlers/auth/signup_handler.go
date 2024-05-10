@@ -52,7 +52,7 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	passwordHash, err := auth.Hash([]byte(params.Password))
+	passwordHash, err := auth.Hash(params.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,8 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	err = setRefreshToken(ctx, tx, ctx.Resp, user.ID)
+	ctx.UserId = user.ID
+	err = setRefreshToken(ctx, tx, ctx.Resp)
 	if err != nil {
 		return nil, err
 	}
