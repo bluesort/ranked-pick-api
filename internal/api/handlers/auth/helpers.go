@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
@@ -16,9 +17,8 @@ type TokenResponse struct {
 }
 
 type AuthResponse struct {
-	AccessToken  *TokenResponse  `json:"access_token"`
-	RefreshToken *TokenResponse  `json:"refresh_token"`
-	User         *resources.User `json:"user"`
+	AccessToken *TokenResponse  `json:"access_token"`
+	User        *resources.User `json:"user"`
 }
 
 func newRefreshToken(ctx *common.Context, tx *db.Queries, userId int64) (string, time.Time, error) {
@@ -42,6 +42,16 @@ func newRefreshToken(ctx *common.Context, tx *db.Queries, userId int64) (string,
 	}
 
 	return token, expiresAt, nil
+}
+
+func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWriter, userId int64) error {
+	token, exp, err := newRefreshToken(ctx, tx, userId)
+	if err != nil {
+		return err
+	}
+	resp.Header().Set("Set-Cookie", "refresh_token="+token+"; Path=/auth/refresh; Expires="+exp.Format(time.RFC1123)+"; HttpOnly")
+
+	return nil
 }
 
 func verifyRefreshToken(ctx *common.Context, tx *db.Queries, token string, userId int64) error {

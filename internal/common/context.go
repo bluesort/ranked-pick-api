@@ -12,10 +12,11 @@ type Context struct {
 	context.Context
 	*config.AppConfig
 	Req    *http.Request
+	Resp   http.ResponseWriter
 	UserId int64
 }
 
-func NewContext(r *http.Request) (*Context, error) {
+func NewContext(w http.ResponseWriter, r *http.Request) (*Context, error) {
 	reqCtx := r.Context()
 	claims, err := auth.ParseClaims(reqCtx)
 	if err != nil {
@@ -25,6 +26,7 @@ func NewContext(r *http.Request) (*Context, error) {
 
 	return &Context{
 		Req:       r,
+		Resp:      w,
 		Context:   reqCtx,
 		AppConfig: config.Config,
 		UserId:    claims.UserId,

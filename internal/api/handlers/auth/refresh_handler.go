@@ -1,34 +1,40 @@
 package auth
 
 import (
-	"fmt"
-
+	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
-type RefreshResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
 func RefreshHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
+	userId := ctx.UserId
 	refreshCookie, err := ctx.Req.Cookie("refresh_token")
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(refreshCookie)
+	err = verifyRefreshToken(ctx, tx, refreshCookie.Value, userId)
+	if err != nil {
+		return nil, err
+	}
 
-	// err = verifyRefreshToken(ctx, tx, params.RefreshToken)
-	// if err != nil {
-	// 	// TODO: return unauth error
-	// 	return err, nil
-	// }
+	accessToken, accessTokenExp, err := auth.NewAccessToken(userId)
+	if err != nil {
+		return nil, err
+	}
 
-	// issue new access token
+	user, err := tx.ReadUser(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
-	// return &RefreshResponse{
-	// 	AccessToken: accessToken,
-	// }, nil
+	userResp := resources.NewUser(user)
+	return &AuthResponse{
+		AccessToken: &TokenResponse{
+			Token: accessToken,
+			Exp:   accessTokenExp,
+		},
+		User: &userResp,
+	}, nil
 }
