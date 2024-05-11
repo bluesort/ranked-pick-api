@@ -204,6 +204,12 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				rp_errors.WriteError(w, err)
 				return
 			}
+
+			err = tx.Commit()
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
 		case func(*common.Context, *db.Queries, int64) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
@@ -227,6 +233,12 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			txQueries := config.Config.Queries.WithTx(tx)
 
 			resp, err = h(ctx, txQueries, id)
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+
+			err = tx.Commit()
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return
@@ -260,6 +272,12 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 			txQueries := config.Config.Queries.WithTx(tx)
 
 			err = h(ctx, txQueries, id, params)
+			if err != nil {
+				rp_errors.WriteError(w, err)
+				return
+			}
+
+			err = tx.Commit()
 			if err != nil {
 				rp_errors.WriteError(w, err)
 				return

@@ -1,3 +1,5 @@
+-- TODO: Add unique survey_answers survey_id,user_id,rank index
+
 -- name: UpsertSurveyAnswer :one
 INSERT INTO survey_answers (
 	survey_id, survey_option_id, user_id, rank
@@ -10,6 +12,11 @@ ON CONFLICT (user_id, survey_option_id) DO UPDATE SET
 	user_id = EXCLUDED.user_id,
 	rank = EXCLUDED.rank
 RETURNING *;
+
+-- name: ListSurveyAnswersForSurvey :many
+SELECT * FROM survey_answers
+WHERE survey_id = ?
+ORDER BY id ASC LIMIT 100;
 
 -- name: ListSurveyAnswersForSurveyUser :many
 SELECT * FROM survey_answers

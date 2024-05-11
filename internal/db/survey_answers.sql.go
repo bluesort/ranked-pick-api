@@ -20,6 +20,43 @@ func (q *Queries) DeleteSurveyAnswer(ctx context.Context, id int64) error {
 	return err
 }
 
+const listSurveyAnswersForSurvey = `-- name: ListSurveyAnswersForSurvey :many
+SELECT id, survey_id, survey_option_id, user_id, rank, created_at, updated_at FROM survey_answers
+WHERE survey_id = ?
+ORDER BY id ASC LIMIT 100
+`
+
+func (q *Queries) ListSurveyAnswersForSurvey(ctx context.Context, surveyID int64) ([]SurveyAnswer, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveyAnswersForSurvey, surveyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SurveyAnswer
+	for rows.Next() {
+		var i SurveyAnswer
+		if err := rows.Scan(
+			&i.ID,
+			&i.SurveyID,
+			&i.SurveyOptionID,
+			&i.UserID,
+			&i.Rank,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSurveyAnswersForSurveyUser = `-- name: ListSurveyAnswersForSurveyUser :many
 SELECT id, survey_id, survey_option_id, user_id, rank, created_at, updated_at FROM survey_answers
 WHERE survey_id = ?
@@ -103,6 +140,7 @@ func (q *Queries) UpdateSurveyAnswer(ctx context.Context, arg UpdateSurveyAnswer
 }
 
 const upsertSurveyAnswer = `-- name: UpsertSurveyAnswer :one
+
 INSERT INTO survey_answers (
 	survey_id, survey_option_id, user_id, rank
 ) VALUES (
@@ -123,6 +161,7 @@ type UpsertSurveyAnswerParams struct {
 	Rank           int64
 }
 
+// TODO: Add unique survey_answers survey_id,user_id,rank index
 func (q *Queries) UpsertSurveyAnswer(ctx context.Context, arg UpsertSurveyAnswerParams) (SurveyAnswer, error) {
 	row := q.db.QueryRowContext(ctx, upsertSurveyAnswer,
 		arg.SurveyID,

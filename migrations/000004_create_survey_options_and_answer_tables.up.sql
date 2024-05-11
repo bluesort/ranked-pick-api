@@ -26,6 +26,5 @@ CREATE TABLE IF NOT EXISTS survey_answers (
 	FOREIGN KEY (survey_option_id) REFERENCES survey_options(id)
 );
 CREATE UNIQUE INDEX idx_survey_answers_on_user_option ON survey_answers (user_id, survey_option_id);
-CREATE UNIQUE INDEX idx_survey_answers_on_user_survey_rank ON survey_answers (user_id, survey_id, rank);
 
 COMMIT;
