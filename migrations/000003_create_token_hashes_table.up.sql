@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS token_hashes (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX idx_token_hashes_user ON token_hashes (user_id);
+CREATE UNIQUE INDEX idx_token_hashes_on_user ON token_hashes (user_id);
 
 COMMIT;

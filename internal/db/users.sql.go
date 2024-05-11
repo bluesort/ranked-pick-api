@@ -49,41 +49,6 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
-const listUsers = `-- name: ListUsers :many
-SELECT id, password_hash, email, display_name, created_at, updated_at FROM users
-ORDER BY id DESC LIMIT 100
-`
-
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.PasswordHash,
-			&i.Email,
-			&i.DisplayName,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const readUser = `-- name: ReadUser :one
 SELECT id, password_hash, email, display_name, created_at, updated_at FROM users
 WHERE id = ? LIMIT 1

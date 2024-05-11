@@ -20,6 +20,24 @@ type Survey struct {
 	UpdatedAt   time.Time
 }
 
+type SurveyAnswer struct {
+	ID             int64
+	SurveyID       int64
+	SurveyOptionID int64
+	UserID         int64
+	Rank           int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type SurveyOption struct {
+	ID        int64
+	SurveyID  int64
+	Title     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type TokenHash struct {
 	ID        int64
 	UserID    int64

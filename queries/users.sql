@@ -14,10 +14,6 @@ WHERE id = ? LIMIT 1;
 SELECT * FROM users
 WHERE email = ? LIMIT 1;
 
--- name: ListUsers :many
-SELECT * FROM users
-ORDER BY id DESC LIMIT 100;
-
 -- name: UpdateUser :one
 UPDATE users SET
 email = coalesce(sqlc.narg('email'), email),

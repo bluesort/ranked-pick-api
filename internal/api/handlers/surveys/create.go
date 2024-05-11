@@ -7,8 +7,9 @@ import (
 )
 
 type CreateParams struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Options     []string `json:"options"`
 }
 
 func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
@@ -24,6 +25,16 @@ func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	for _, option := range params.Options {
+		_, err = tx.CreateSurveyOption(ctx, db.CreateSurveyOptionParams{
+			SurveyID: survey.ID,
+			Title:    option,
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return survey, nil
