@@ -38,9 +38,10 @@ func NewRouter() *chi.Mux {
 		Post(authedRouter, "/surveys").Handler(surveys.Create, &surveys.CreateParams{})
 		Get(authedRouter, "/surveys").Handler(surveys.List)
 		Get(authedRouter, "/surveys/{id}").Handler(surveys.Read)
-		Get(authedRouter, "/surveys/{id}/options").Handler(surveys.ListOptions)
 		Post(authedRouter, "/surveys/{id}").Handler(surveys.Update, &surveys.UpdateParams{})
 		Delete(authedRouter, "/surveys/{id}").Handler(surveys.Delete)
+		Get(authedRouter, "/surveys/{id}/options").Handler(surveys.ListOptions)
+		Post(authedRouter, "/surveys/{id}/vote").Handler(surveys.Vote, &surveys.VoteParams{})
 	})
 
 	return router

@@ -12,3 +12,10 @@ func newSurveyResp(survey *db.Survey) *resources.Survey {
 		Description: survey.Description.String,
 	}
 }
+
+func newSurveyOptionResp(option *db.SurveyOption) *resources.SurveyOption {
+	return &resources.SurveyOption{
+		Id:    option.ID,
+		Title: option.Title,
+	}
+}

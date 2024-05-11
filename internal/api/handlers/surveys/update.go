@@ -22,5 +22,5 @@ func Update(ctx *common.Context, tx *db.Queries, id int64, iparams interface{}) 
 		return nil, err
 	}
 
-	return survey, nil
+	return newSurveyResp(&survey), nil
 }

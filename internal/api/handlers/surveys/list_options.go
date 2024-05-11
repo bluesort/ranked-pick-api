@@ -3,6 +3,7 @@ package surveys
 import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 func ListOptions(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error) {
@@ -11,9 +12,9 @@ func ListOptions(ctx *common.Context, tx *db.Queries, id int64) (interface{}, er
 		return nil, err
 	}
 
-	var optionsResp []string
+	var optionsResp []*resources.SurveyOption
 	for _, option := range options {
-		optionsResp = append(optionsResp, option.Title)
+		optionsResp = append(optionsResp, newSurveyOptionResp(&option))
 	}
 
 	return optionsResp, nil

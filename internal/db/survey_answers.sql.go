@@ -108,7 +108,7 @@ INSERT INTO survey_answers (
 ) VALUES (
   ?, ?, ?, ?
 )
-ON CONFLICT (survey_id, survey_option_id, user_id, rank) DO UPDATE SET
+ON CONFLICT (user_id, survey_option_id) DO UPDATE SET
 	survey_id = EXCLUDED.survey_id,
 	survey_option_id = EXCLUDED.survey_option_id,
 	user_id = EXCLUDED.user_id,

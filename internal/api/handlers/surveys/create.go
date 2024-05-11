@@ -37,5 +37,5 @@ func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 		}
 	}
 
-	return survey, nil
+	return newSurveyResp(&survey), nil
 }
