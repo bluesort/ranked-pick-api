@@ -14,7 +14,7 @@ type User struct {
 	DisplayName string `json:"display_name,omitempty"`
 }
 
-var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~'}
+var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~', '@'}
 
 func ValidateEmail(email string) error {
 	if email == "" {
