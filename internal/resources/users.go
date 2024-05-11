@@ -1,30 +1,20 @@
 package resources
 
 import (
-	"database/sql"
 	"net/mail"
 	"slices"
 	"unicode"
 
-	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 type User struct {
-	Id          int64          `json:"id"`
-	Email       string         `json:"email"`
-	DisplayName sql.NullString `json:"display_name"`
+	Id          int64  `json:"id"`
+	Email       string `json:"email"`
+	DisplayName string `json:"display_name,omitempty"`
 }
 
 var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~'}
-
-func NewUser(user db.User) User {
-	return User{
-		Id:          user.ID,
-		Email:       user.Email,
-		DisplayName: user.DisplayName,
-	}
-}
 
 func ValidateEmail(email string) error {
 	if email == "" {

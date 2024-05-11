@@ -20,6 +20,14 @@ type AuthResponse struct {
 	User        *resources.User `json:"user"`
 }
 
+func newUserResp(user *db.User) *resources.User {
+	return &resources.User{
+		Id:          user.ID,
+		Email:       user.Email,
+		DisplayName: user.DisplayName.String,
+	}
+}
+
 func createRefreshToken(ctx *common.Context, tx *db.Queries) (string, time.Time, error) {
 	token, expiresAt, err := auth.NewRefreshToken(ctx.UserId)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
-	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
@@ -29,12 +28,11 @@ func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 		return nil, err
 	}
 
-	userResp := resources.NewUser(user)
 	return &AuthResponse{
 		AccessToken: &TokenResponse{
 			Token: accessToken,
 			Exp:   accessTokenExp,
 		},
-		User: &userResp,
+		User: newUserResp(&user),
 	}, nil
 }

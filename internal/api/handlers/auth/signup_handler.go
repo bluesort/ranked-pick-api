@@ -77,12 +77,11 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	userResp := resources.NewUser(user)
 	return &AuthResponse{
 		AccessToken: &TokenResponse{
 			Token: accessToken,
 			Exp:   accessTokenExp,
 		},
-		User: &userResp,
+		User: newUserResp(&user),
 	}, nil
 }

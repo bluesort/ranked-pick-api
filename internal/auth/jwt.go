@@ -13,6 +13,7 @@ import (
 type Claims struct {
 	UserId int64     `json:"user_id"`
 	Exp    time.Time `json:"exp"`
+	Iat    time.Time `json:"iat"`
 }
 
 var AccessTokenTTL = 15 * time.Minute
@@ -63,6 +64,7 @@ func newToken(auth *jwtauth.JWTAuth, ttl time.Duration, userId int64) (string, t
 	_, tokenString, err := auth.Encode(map[string]interface{}{
 		"user_id": userId,
 		"exp":     expiresAtUnix,
+		"iat":     time.Now().Unix(),
 	})
 	if err != nil {
 		return "", time.Time{}, err

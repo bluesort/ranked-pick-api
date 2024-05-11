@@ -7,7 +7,6 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/carterjackson/ranked-pick-api/internal/errors"
-	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
 type SigninParams struct {
@@ -42,12 +41,11 @@ func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	userResp := resources.NewUser(user)
 	return &AuthResponse{
 		AccessToken: &TokenResponse{
 			Token: accessToken,
 			Exp:   accessTokenExp,
 		},
-		User: &userResp,
+		User: newUserResp(&user),
 	}, nil
 }

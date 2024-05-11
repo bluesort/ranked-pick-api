@@ -8,5 +8,5 @@ func Read(ctx *common.Context, id int64) (interface{}, error) {
 		return nil, err
 	}
 
-	return survey, nil
+	return newSurveyResp(&survey), nil
 }
