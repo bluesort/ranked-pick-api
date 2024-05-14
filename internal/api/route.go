@@ -64,58 +64,58 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		case func(*common.Context) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			resp, err = h(ctx)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				rp_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			resp, err = h(ctx, params)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, interface{}) (interface{}, error):
 			if len(paramStruct) == 0 {
-				rp_errors.WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
+				WriteError(w, fmt.Errorf("missing paramStruct for path '%s'", route.Path))
 				return
 			}
 
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -123,25 +123,25 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			resp, err = h(ctx, txQueries, params)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -149,51 +149,51 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			resp, err = h(ctx, txQueries)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, int64) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				rp_errors.WriteError(w, "Invalid id")
+				WriteError(w, "Invalid id")
 				return
 			}
 
 			resp, err = h(ctx, id)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) error:
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				rp_errors.WriteError(w, "Invalid id")
+				WriteError(w, "Invalid id")
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -201,32 +201,32 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			err = h(ctx, txQueries, id)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, int64) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				rp_errors.WriteError(w, "Invalid id")
+				WriteError(w, "Invalid id")
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -234,38 +234,38 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			resp, err = h(ctx, txQueries, id)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		case func(*common.Context, *db.Queries, int64, interface{}) error:
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			idStr := chi.URLParam(r, "id")
 			id, err := strconv.ParseInt(idStr, 10, 64)
 			if err != nil {
-				rp_errors.WriteError(w, "Invalid id")
+				WriteError(w, "Invalid id")
 				return
 			}
 
 			params, err := extractParams(r, paramStruct[0])
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			tx, err := config.Config.Db.BeginTx(ctx, nil)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 			defer tx.Rollback()
@@ -273,17 +273,17 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 
 			err = h(ctx, txQueries, id, params)
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 
 			err = tx.Commit()
 			if err != nil {
-				rp_errors.WriteError(w, err)
+				WriteError(w, err)
 				return
 			}
 		default:
-			rp_errors.WriteError(w, errors.New("unrecognized handler"))
+			WriteError(w, errors.New("unrecognized handler"))
 			return
 		}
 

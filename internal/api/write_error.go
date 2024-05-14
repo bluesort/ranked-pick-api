@@ -1,21 +1,26 @@
-package errors
+package api
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 	"reflect"
+
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 func WriteError(w http.ResponseWriter, err interface{}) {
 	switch errVal := err.(type) {
-	case *InputError:
+	case *errors.InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte("\"" + errVal.Message + "\""))
+		w.Write(errorResp(errVal.Message))
+	case *errors.AuthError:
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write(errorResp(errVal.Error()))
 	case error:
 		log.Print(errVal)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("\"error\""))
+		w.Write(errorResp("something went wrong"))
 	default:
 		var typeName string
 		if t := reflect.TypeOf(err); t.Kind() == reflect.Ptr {
@@ -25,4 +30,8 @@ func WriteError(w http.ResponseWriter, err interface{}) {
 		}
 		panic(fmt.Sprintf("Invalid error of type '%s' returned", typeName))
 	}
+}
+
+func errorResp(message string) []byte {
+	return []byte("{error:\"" + message + "\"}")
 }
