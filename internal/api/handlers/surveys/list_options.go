@@ -12,9 +12,11 @@ func ListOptions(ctx *common.Context, tx *db.Queries, id int64) (interface{}, er
 		return nil, err
 	}
 
-	var optionsResp []*resources.SurveyOption
-	for _, option := range options {
-		optionsResp = append(optionsResp, newSurveyOptionResp(&option))
+	// TODO: Use previous vote order if user has voted
+
+	optionsResp := make([]*resources.SurveyOption, len(options))
+	for i, option := range options {
+		optionsResp[i] = newSurveyOptionResp(&option)
 	}
 
 	return optionsResp, nil
