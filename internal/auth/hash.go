@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
-	"errors"
 
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"golang.org/x/crypto/argon2"
 )
-
-// var HashCost = 12
 
 const (
 	HashTime    = 1
@@ -43,8 +41,7 @@ func VerifyPlainWithHash(plain string, encodedHash string) error {
 
 	plainHash := argon2.IDKey([]byte(plain), salt, HashTime, HashMemory, HashThreads, HashKeyLen)
 	if !bytes.Equal(storedHash, plainHash) {
-		// TODO: auth error
-		return errors.New("invalid plain")
+		return errors.NewAuthError()
 	}
 
 	return nil

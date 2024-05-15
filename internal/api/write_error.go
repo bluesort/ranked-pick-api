@@ -33,5 +33,5 @@ func WriteError(w http.ResponseWriter, err interface{}) {
 }
 
 func errorResp(message string) []byte {
-	return []byte("{error:\"" + message + "\"}")
+	return []byte("{\"error\":\"" + message + "\"}")
 }

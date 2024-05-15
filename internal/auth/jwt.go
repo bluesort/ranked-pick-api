@@ -3,9 +3,11 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/carterjackson/ranked-pick-api/internal/config"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -25,11 +27,13 @@ func ParseClaims(ctx context.Context) (*Claims, error) {
 	var claims Claims
 	encodedClaims, err := json.Marshal(claimsMap)
 	if err != nil {
-		return nil, err
+		log.Printf("Error parsing JWT claims: %s", err)
+		return nil, errors.NewAuthError()
 	}
 	err = json.Unmarshal(encodedClaims, &claims)
 	if err != nil {
-		return nil, err
+		log.Printf("Error parsing JWT claims: %s", err)
+		return nil, errors.NewAuthError()
 	}
 
 	return &claims, nil
