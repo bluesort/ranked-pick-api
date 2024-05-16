@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
@@ -21,6 +22,7 @@ func NewContext(w http.ResponseWriter, r *http.Request) (*Context, error) {
 	reqCtx := r.Context()
 	claims, err := auth.ParseClaims(reqCtx)
 	if err != nil {
+		log.Printf("Error parsing JWT claims: %s", err)
 		return nil, errors.NewAuthError()
 	}
 

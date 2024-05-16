@@ -1,12 +1,14 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
@@ -62,8 +64,8 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 		Expires:  exp,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   false, // TODO: set to false before deployment
-		Path:     "/api/auth/refresh",
+		Secure:   false, // TODO: set to true before deployment
+		Path:     "/api/auth",
 	}
 	http.SetCookie(resp, &cookie)
 
@@ -73,12 +75,13 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 func verifyRefreshToken(ctx *common.Context, tx *db.Queries, token string) error {
 	dbTokenHash, err := tx.ReadTokenHashByUserId(ctx, ctx.UserId)
 	if err != nil {
-		return err
+		return errors.NewAuthError()
 	}
 
 	err = auth.VerifyPlainWithHash(token, dbTokenHash.Hash)
 	if err != nil {
-		return err
+		log.Println(err)
+		return errors.NewAuthError()
 	}
 
 	return nil

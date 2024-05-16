@@ -158,6 +158,32 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				WriteError(w, err)
 				return
 			}
+		case func(*common.Context, *db.Queries) error:
+			ctx, err := common.NewContext(w, r)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			tx, err := config.Config.Db.BeginTx(ctx, nil)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+			defer tx.Rollback()
+			txQueries := config.Config.Queries.WithTx(tx)
+
+			err = h(ctx, txQueries)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 		case func(*common.Context, int64) (interface{}, error):
 			ctx, err := common.NewContext(w, r)
 			if err != nil {
@@ -288,7 +314,12 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 		}
 
 		if resp != nil {
-			json.NewEncoder(w).Encode(resp)
+			switch typedResp := resp.(type) {
+			case string:
+				json.NewEncoder(w).Encode(map[string]string{"resp": typedResp})
+			default:
+				json.NewEncoder(w).Encode(typedResp)
+			}
 		}
 		w.WriteHeader(http.StatusOK)
 	}

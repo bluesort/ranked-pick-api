@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-const deleteTokenHash = `-- name: DeleteTokenHash :exec
+const deleteTokenHashByUserId = `-- name: DeleteTokenHashByUserId :exec
 DELETE FROM token_hashes
-WHERE hash = ?
+WHERE user_id = ?
 `
 
-func (q *Queries) DeleteTokenHash(ctx context.Context, hash string) error {
-	_, err := q.db.ExecContext(ctx, deleteTokenHash, hash)
+func (q *Queries) DeleteTokenHashByUserId(ctx context.Context, userID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTokenHashByUserId, userID)
 	return err
 }
 

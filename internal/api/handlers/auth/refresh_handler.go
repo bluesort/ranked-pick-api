@@ -4,6 +4,7 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
@@ -11,6 +12,9 @@ func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 	refreshCookie, err := ctx.Req.Cookie("jwt")
 	if err != nil {
 		return nil, err
+	}
+	if refreshCookie.Value == "" {
+		return nil, errors.NewAuthError()
 	}
 
 	err = verifyRefreshToken(ctx, tx, refreshCookie.Value)

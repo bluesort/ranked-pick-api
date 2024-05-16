@@ -13,6 +13,6 @@ RETURNING *;
 SELECT * FROM token_hashes
 WHERE user_id = ? LIMIT 1;
 
--- name: DeleteTokenHash :exec
+-- name: DeleteTokenHashByUserId :exec
 DELETE FROM token_hashes
-WHERE hash = ?;
+WHERE user_id = ?;

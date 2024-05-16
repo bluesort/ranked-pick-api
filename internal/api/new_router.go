@@ -12,6 +12,7 @@ import (
 func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 
+	// TODO: Add rate limiting
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
@@ -24,10 +25,10 @@ func NewRouter() *chi.Mux {
 	// Auth
 	Post(router, "/auth/signup").Handler(auth_handlers.SignupHandler, &auth_handlers.SignupParams{})
 	Post(router, "/auth/signin").Handler(auth_handlers.SigninHandler, &auth_handlers.SigninParams{})
-
 	router.Group(func(refreshRouter chi.Router) {
 		auth.AddRefreshTokenMiddleware(refreshRouter)
 		Post(refreshRouter, "/auth/refresh").Handler(auth_handlers.RefreshHandler)
+		Post(refreshRouter, "/auth/signout").Handler(auth_handlers.SignoutHandler)
 	})
 
 	// Protected Routes
