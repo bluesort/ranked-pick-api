@@ -3,6 +3,7 @@ package surveys
 import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
@@ -14,6 +15,13 @@ type CreateParams struct {
 
 func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*CreateParams)
+
+	if params.Title == "" {
+		return nil, errors.NewInputError("no title provided")
+	}
+	if len(params.Options) == 0 {
+		return nil, errors.NewInputError("no options provided")
+	}
 
 	// TODO: Make survey visibility private by default once invites are implemented
 	survey, err := tx.CreateSurvey(ctx, db.CreateSurveyParams{
