@@ -15,13 +15,13 @@ type CreateParams struct {
 func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*CreateParams)
 
-	// TODO: Make surveys private by default once invites are implemented
+	// TODO: Make survey visibility private by default once invites are implemented
 	survey, err := tx.CreateSurvey(ctx, db.CreateSurveyParams{
 		UserID:      ctx.UserId,
 		Title:       params.Title,
 		Description: db.NewNullString(params.Description),
-		State:       resources.SurveyStatePending,
-		Visibility:  resources.SurveyVisibilityPublic,
+		State:       string(resources.SurveyStatePending),
+		Visibility:  string(resources.SurveyVisibilityPublic),
 	})
 	if err != nil {
 		return nil, err
@@ -37,5 +37,5 @@ func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 		}
 	}
 
-	return newSurveyResp(&survey), nil
+	return db.NewSurvey(&survey), nil
 }

@@ -16,7 +16,7 @@ func ListOptions(ctx *common.Context, tx *db.Queries, id int64) (interface{}, er
 
 	optionsResp := make([]*resources.SurveyOption, len(options))
 	for i, option := range options {
-		optionsResp[i] = newSurveyOptionResp(&option)
+		optionsResp[i] = db.NewSurveyOption(&option)
 	}
 
 	return optionsResp, nil

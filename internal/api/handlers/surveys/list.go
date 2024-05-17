@@ -2,6 +2,7 @@ package surveys
 
 import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
+	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
 
@@ -13,7 +14,7 @@ func List(ctx *common.Context) (interface{}, error) {
 
 	var surveysResp []*resources.Survey
 	for _, survey := range surveys {
-		surveysResp = append(surveysResp, newSurveyResp(&survey))
+		surveysResp = append(surveysResp, db.NewSurvey(&survey))
 	}
 
 	return surveysResp, nil

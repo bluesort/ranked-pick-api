@@ -1,6 +1,9 @@
 package surveys
 
-import "github.com/carterjackson/ranked-pick-api/internal/common"
+import (
+	"github.com/carterjackson/ranked-pick-api/internal/common"
+	"github.com/carterjackson/ranked-pick-api/internal/db"
+)
 
 func Read(ctx *common.Context, id int64) (interface{}, error) {
 	survey, err := ctx.Queries.ReadSurvey(ctx, id)
@@ -8,5 +11,5 @@ func Read(ctx *common.Context, id int64) (interface{}, error) {
 		return nil, err
 	}
 
-	return newSurveyResp(&survey), nil
+	return db.NewSurvey(&survey), nil
 }

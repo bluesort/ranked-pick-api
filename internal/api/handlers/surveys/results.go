@@ -19,6 +19,8 @@ type Result struct {
 }
 
 func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error) {
+	// TOOD: Error if ctx user isn't survey creator
+
 	options, err := tx.ListSurveyOptionsForSurvey(ctx, id)
 	if err != nil {
 		return nil, err
