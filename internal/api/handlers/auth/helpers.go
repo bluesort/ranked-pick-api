@@ -18,16 +18,7 @@ type TokenResponse struct {
 }
 
 type AuthResponse struct {
-	AccessToken *TokenResponse  `json:"access_token"`
-	User        *resources.User `json:"user"`
-}
-
-func newUserResp(user *db.User) *resources.User {
-	return &resources.User{
-		Id:          user.ID,
-		Email:       user.Email,
-		DisplayName: user.DisplayName.String,
-	}
+	User *resources.User `json:"user"`
 }
 
 func createRefreshToken(ctx *common.Context, tx *db.Queries) (string, time.Time, error) {

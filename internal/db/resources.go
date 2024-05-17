@@ -23,3 +23,11 @@ func NewSurveyOption(option *SurveyOption) *resources.SurveyOption {
 		Title: option.Title,
 	}
 }
+
+func NewUser(user *User) *resources.User {
+	return &resources.User{
+		Id:          user.ID,
+		Email:       user.Email,
+		DisplayName: user.DisplayName.String,
+	}
+}

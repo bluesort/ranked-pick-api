@@ -5,7 +5,13 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
 	"github.com/carterjackson/ranked-pick-api/internal/errors"
+	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
+
+type RefreshResponse struct {
+	AccessToken *TokenResponse  `json:"access_token"`
+	User        *resources.User `json:"user"`
+}
 
 func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 	userId := ctx.UserId
@@ -32,11 +38,11 @@ func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 		return nil, err
 	}
 
-	return &AuthResponse{
+	return &RefreshResponse{
 		AccessToken: &TokenResponse{
 			Token: accessToken,
 			Exp:   accessTokenExp,
 		},
-		User: newUserResp(&user),
+		User: db.NewUser(&user),
 	}, nil
 }

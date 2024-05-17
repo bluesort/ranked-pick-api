@@ -66,11 +66,6 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 		return nil, err
 	}
 
-	accessToken, accessTokenExp, err := auth.NewAccessToken(user.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	ctx.UserId = user.ID
 	err = setRefreshToken(ctx, tx, ctx.Resp)
 	if err != nil {
@@ -78,10 +73,6 @@ func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (in
 	}
 
 	return &AuthResponse{
-		AccessToken: &TokenResponse{
-			Token: accessToken,
-			Exp:   accessTokenExp,
-		},
-		User: newUserResp(&user),
+		User: db.NewUser(&user),
 	}, nil
 }
