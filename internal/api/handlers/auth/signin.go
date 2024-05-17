@@ -14,7 +14,7 @@ type SigninParams struct {
 	Password string `json:"password"`
 }
 
-func SigninHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
+func Signin(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SigninParams)
 	invalidCredsErr := errors.NewInputError("invalid email or password")
 

@@ -7,7 +7,7 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/db"
 )
 
-func SignoutHandler(ctx *common.Context, tx *db.Queries) error {
+func Signout(ctx *common.Context, tx *db.Queries) error {
 	fmt.Println("deleting token hash for user", ctx.UserId)
 
 	userId := ctx.UserId

@@ -13,7 +13,7 @@ type RefreshResponse struct {
 	User        *resources.User `json:"user"`
 }
 
-func RefreshHandler(ctx *common.Context, tx *db.Queries) (interface{}, error) {
+func Refresh(ctx *common.Context, tx *db.Queries) (interface{}, error) {
 	userId := ctx.UserId
 	refreshCookie, err := ctx.Req.Cookie("jwt")
 	if err != nil {

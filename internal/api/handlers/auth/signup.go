@@ -19,7 +19,7 @@ type SignupParams struct {
 }
 
 // TODO: Confirm email
-func SignupHandler(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
+func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
 
 	if params.Password != params.PasswordConfirmation {
