@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS survey_options (
 	FOREIGN KEY (survey_id) REFERENCES surveys(id)
 );
 
-CREATE TABLE IF NOT EXISTS survey_answers (
+CREATE TABLE IF NOT EXISTS survey_responses (
   id INTEGER PRIMARY KEY NOT NULL,
 	survey_id INTEGER NOT NULL,
 	survey_option_id INTEGER NOT NULL,
@@ -25,6 +25,6 @@ CREATE TABLE IF NOT EXISTS survey_answers (
 	FOREIGN KEY (survey_id) REFERENCES surveys(id),
 	FOREIGN KEY (survey_option_id) REFERENCES survey_options(id)
 );
-CREATE UNIQUE INDEX idx_survey_answers_on_user_option ON survey_answers (user_id, survey_option_id);
+CREATE UNIQUE INDEX idx_survey_responses_on_user_option ON survey_responses (user_id, survey_option_id);
 
 COMMIT;

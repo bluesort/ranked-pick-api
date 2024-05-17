@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
 DROP TABLE IF EXISTS survey_options;
-DROP TABLE IF EXISTS survey_answers;
+DROP TABLE IF EXISTS survey_responses;
 
 COMMIT;

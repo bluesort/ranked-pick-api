@@ -26,7 +26,7 @@ func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error)
 		return nil, err
 	}
 
-	answers, err := tx.ListSurveyAnswersForSurvey(ctx, id)
+	responses, err := tx.ListSurveyResponsesForSurvey(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -40,9 +40,9 @@ func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error)
 			Rank:  0,
 		}
 	}
-	for _, answer := range answers {
-		participants[answer.UserID] = struct{}{}
-		optionToResult[answer.SurveyOptionID].Rank += answer.Rank
+	for _, response := range responses {
+		participants[response.UserID] = struct{}{}
+		optionToResult[response.SurveyOptionID].Rank += response.Rank
 	}
 
 	var optionResults []*OptionResult

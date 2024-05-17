@@ -16,7 +16,7 @@ INSERT INTO users (
 ) VALUES (
   ?, ?, ?
 )
-RETURNING id, password_hash, email, display_name, created_at, updated_at
+RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
 `
 
 type CreateUserParams struct {
@@ -35,6 +35,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EmailConfirmed,
 	)
 	return i, err
 }
@@ -50,7 +51,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const readUser = `-- name: ReadUser :one
-SELECT id, password_hash, email, display_name, created_at, updated_at FROM users
+SELECT id, password_hash, email, display_name, created_at, updated_at, email_confirmed FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -64,12 +65,13 @@ func (q *Queries) ReadUser(ctx context.Context, id int64) (User, error) {
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EmailConfirmed,
 	)
 	return i, err
 }
 
 const readUserByEmail = `-- name: ReadUserByEmail :one
-SELECT id, password_hash, email, display_name, created_at, updated_at FROM users
+SELECT id, password_hash, email, display_name, created_at, updated_at, email_confirmed FROM users
 WHERE email = ? LIMIT 1
 `
 
@@ -83,6 +85,7 @@ func (q *Queries) ReadUserByEmail(ctx context.Context, email string) (User, erro
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EmailConfirmed,
 	)
 	return i, err
 }
@@ -93,7 +96,7 @@ email = coalesce(?1, email),
 display_name = coalesce(?2, display_name),
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?3
-RETURNING id, password_hash, email, display_name, created_at, updated_at
+RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
 `
 
 type UpdateUserParams struct {
@@ -112,6 +115,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EmailConfirmed,
 	)
 	return i, err
 }
@@ -121,7 +125,7 @@ UPDATE users SET
 password_hash = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, password_hash, email, display_name, created_at, updated_at
+RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
 `
 
 type UpdateUserPasswordParams struct {
@@ -139,6 +143,7 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPassword
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EmailConfirmed,
 	)
 	return i, err
 }

@@ -20,7 +20,15 @@ type Survey struct {
 	UpdatedAt   time.Time
 }
 
-type SurveyAnswer struct {
+type SurveyOption struct {
+	ID        int64
+	SurveyID  int64
+	Title     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type SurveyResponse struct {
 	ID             int64
 	SurveyID       int64
 	SurveyOptionID int64
@@ -28,14 +36,6 @@ type SurveyAnswer struct {
 	Rank           int64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-}
-
-type SurveyOption struct {
-	ID        int64
-	SurveyID  int64
-	Title     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 type TokenHash struct {
@@ -48,10 +48,11 @@ type TokenHash struct {
 }
 
 type User struct {
-	ID           int64
-	PasswordHash string
-	Email        string
-	DisplayName  sql.NullString
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID             int64
+	PasswordHash   string
+	Email          string
+	DisplayName    sql.NullString
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	EmailConfirmed bool
 }
