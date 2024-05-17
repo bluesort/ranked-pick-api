@@ -19,8 +19,8 @@ func Create(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 	if params.Title == "" {
 		return nil, errors.NewInputError("no title provided")
 	}
-	if len(params.Options) == 0 {
-		return nil, errors.NewInputError("no options provided")
+	if len(params.Options) < 2 {
+		return nil, errors.NewInputError("must have at least 2 options")
 	}
 
 	// TODO: Make survey visibility private by default once invites are implemented
