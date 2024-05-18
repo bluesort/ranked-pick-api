@@ -13,8 +13,7 @@ type OptionResult struct {
 	Rank  int64  `json:"rank"`
 }
 
-type Result struct {
-	ResponseCount int             `json:"response_count"`
+type ResultsResp struct {
 	OptionResults []*OptionResult `json:"option_results"`
 }
 
@@ -31,7 +30,6 @@ func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error)
 		return nil, err
 	}
 
-	participants := make(map[int64]struct{})
 	optionToResult := make(map[int64]*OptionResult, len(options))
 	for _, option := range options {
 		optionToResult[option.ID] = &OptionResult{
@@ -41,7 +39,6 @@ func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error)
 		}
 	}
 	for _, response := range responses {
-		participants[response.UserID] = struct{}{}
 		optionToResult[response.SurveyOptionID].Rank += response.Rank
 	}
 
@@ -53,8 +50,7 @@ func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error)
 		return int(a.Rank) - int(b.Rank)
 	})
 
-	return &Result{
-		ResponseCount: len(participants),
+	return &ResultsResp{
 		OptionResults: optionResults,
 	}, nil
 }

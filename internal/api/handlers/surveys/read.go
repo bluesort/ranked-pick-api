@@ -6,10 +6,17 @@ import (
 )
 
 func Read(ctx *common.Context, id int64) (interface{}, error) {
-	survey, err := ctx.Queries.ReadSurvey(ctx, id)
+	dbSurvey, err := ctx.Queries.ReadSurvey(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+	survey := db.NewSurvey(&dbSurvey)
 
-	return db.NewSurvey(&survey), nil
+	count, err := ctx.Queries.CountSurveyResponsesForSurvey(ctx, survey.Id)
+	if err != nil {
+		return nil, err
+	}
+	survey.ResponseCount = count
+
+	return survey, nil
 }

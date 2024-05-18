@@ -24,6 +24,10 @@ WHERE survey_id = ?
 AND user_id = ?
 ORDER BY rank ASC LIMIT 100;
 
+-- name: CountSurveyResponsesForSurvey :one
+SELECT COUNT(DISTINCT user_id) FROM survey_responses
+WHERE survey_id = ?;
+
 -- name: UpdateSurveyResponse :one
 UPDATE survey_responses SET
 survey_id = coalesce(sqlc.narg('survey_id'), survey_id),

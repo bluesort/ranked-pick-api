@@ -10,6 +10,18 @@ import (
 	"database/sql"
 )
 
+const countSurveyResponsesForSurvey = `-- name: CountSurveyResponsesForSurvey :one
+SELECT COUNT(DISTINCT user_id) FROM survey_responses
+WHERE survey_id = ?
+`
+
+func (q *Queries) CountSurveyResponsesForSurvey(ctx context.Context, surveyID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countSurveyResponsesForSurvey, surveyID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const deleteSurveyResponse = `-- name: DeleteSurveyResponse :exec
 DELETE FROM survey_responses
 WHERE id = ?
