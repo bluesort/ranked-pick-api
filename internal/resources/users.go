@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"net/mail"
 	"slices"
 	"unicode"
 
@@ -10,25 +9,22 @@ import (
 
 type User struct {
 	Id          int64  `json:"id"`
-	Email       string `json:"email"`
+	Username    string `json:"username"`
 	DisplayName string `json:"display_name,omitempty"`
 }
 
 var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~', '@'}
 
-func ValidateEmail(email string) error {
-	if email == "" {
-		return errors.NewInputError("missing email")
+func ValidateUsername(username string) error {
+	if username == "" {
+		return errors.NewInputError("missing username")
 	}
 
-	if len(email) > 299 {
-		return errors.NewInputError("email must be less than 300 characters")
+	if len(username) > 100 {
+		return errors.NewInputError("username must be 100 characters or less")
 	}
 
-	_, err := mail.ParseAddress(email)
-	if err != nil {
-		return errors.NewInputError("invalid email")
-	}
+	// TODO: Validate only letters, numbers, -, and _
 
 	return nil
 }

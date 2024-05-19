@@ -48,11 +48,10 @@ type TokenHash struct {
 }
 
 type User struct {
-	ID             int64
-	PasswordHash   string
-	Email          string
-	DisplayName    sql.NullString
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	EmailConfirmed bool
+	ID           int64
+	Username     string
+	PasswordHash string
+	DisplayName  sql.NullString
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

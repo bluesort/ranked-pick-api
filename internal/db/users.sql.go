@@ -12,30 +12,29 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  password_hash, email, display_name
+  password_hash, username, display_name
 ) VALUES (
   ?, ?, ?
 )
-RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
+RETURNING id, username, password_hash, display_name, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	PasswordHash string
-	Email        string
+	Username     string
 	DisplayName  sql.NullString
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.PasswordHash, arg.Email, arg.DisplayName)
+	row := q.db.QueryRowContext(ctx, createUser, arg.PasswordHash, arg.Username, arg.DisplayName)
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Username,
 		&i.PasswordHash,
-		&i.Email,
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EmailConfirmed,
 	)
 	return i, err
 }
@@ -51,7 +50,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const readUser = `-- name: ReadUser :one
-SELECT id, password_hash, email, display_name, created_at, updated_at, email_confirmed FROM users
+SELECT id, username, password_hash, display_name, created_at, updated_at FROM users
 WHERE id = ? LIMIT 1
 `
 
@@ -60,62 +59,59 @@ func (q *Queries) ReadUser(ctx context.Context, id int64) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Username,
 		&i.PasswordHash,
-		&i.Email,
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EmailConfirmed,
 	)
 	return i, err
 }
 
-const readUserByEmail = `-- name: ReadUserByEmail :one
-SELECT id, password_hash, email, display_name, created_at, updated_at, email_confirmed FROM users
-WHERE email = ? LIMIT 1
+const readUserByUsername = `-- name: ReadUserByUsername :one
+SELECT id, username, password_hash, display_name, created_at, updated_at FROM users
+WHERE username = ? LIMIT 1
 `
 
-func (q *Queries) ReadUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, readUserByEmail, email)
+func (q *Queries) ReadUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, readUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Username,
 		&i.PasswordHash,
-		&i.Email,
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EmailConfirmed,
 	)
 	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users SET
-email = coalesce(?1, email),
+username = coalesce(?1, username),
 display_name = coalesce(?2, display_name),
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?3
-RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
+RETURNING id, username, password_hash, display_name, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	Email       sql.NullString
+	Username    sql.NullString
 	DisplayName sql.NullString
 	ID          int64
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser, arg.Email, arg.DisplayName, arg.ID)
+	row := q.db.QueryRowContext(ctx, updateUser, arg.Username, arg.DisplayName, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Username,
 		&i.PasswordHash,
-		&i.Email,
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EmailConfirmed,
 	)
 	return i, err
 }
@@ -125,7 +121,7 @@ UPDATE users SET
 password_hash = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, password_hash, email, display_name, created_at, updated_at, email_confirmed
+RETURNING id, username, password_hash, display_name, created_at, updated_at
 `
 
 type UpdateUserPasswordParams struct {
@@ -138,12 +134,11 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPassword
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.Username,
 		&i.PasswordHash,
-		&i.Email,
 		&i.DisplayName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EmailConfirmed,
 	)
 	return i, err
 }

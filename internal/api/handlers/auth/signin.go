@@ -10,15 +10,15 @@ import (
 )
 
 type SigninParams struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 func Signin(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SigninParams)
-	invalidCredsErr := errors.NewInputError("invalid email or password")
+	invalidCredsErr := errors.NewInputError("invalid username or password")
 
-	user, err := tx.ReadUserByEmail(ctx, params.Email)
+	user, err := tx.ReadUserByEmail(ctx, params.Username)
 	if err == sql.ErrNoRows {
 		return nil, invalidCredsErr
 	} else if err != nil {

@@ -11,14 +11,13 @@ import (
 )
 
 type SignupParams struct {
-	Email                string `json:"email"`
+	Username             string `json:"username"`
 	Password             string `json:"password"`
 	PasswordConfirmation string `json:"password_confirmation"`
 	DisplayName          string `json:"display_name"`
 	AcceptedTos          bool   `json:"accepted_tos"`
 }
 
-// TODO: Confirm email
 func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface{}, error) {
 	params := iparams.(*SignupParams)
 
@@ -30,7 +29,7 @@ func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 		return nil, errors.NewInputError("you must accept the terms of service")
 	}
 
-	err := resources.ValidateEmail(params.Email)
+	err := resources.ValidateUsername(params.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +44,9 @@ func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 		}
 	}
 
-	_, err = tx.ReadUserByEmail(ctx, params.Email)
+	_, err = tx.ReadUserByUsername(ctx, params.Username)
 	if err == nil {
-		return nil, errors.NewInputError("email already in use")
+		return nil, errors.NewInputError("Username already in use")
 	} else if err != sql.ErrNoRows {
 		return nil, err
 	}
@@ -58,7 +57,7 @@ func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 	}
 
 	user, err := tx.CreateUser(ctx, db.CreateUserParams{
-		Email:        params.Email,
+		Username:     params.Username,
 		DisplayName:  db.NewNullString(params.DisplayName),
 		PasswordHash: passwordHash,
 	})

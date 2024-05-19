@@ -1,6 +1,6 @@
 -- name: CreateUser :one
 INSERT INTO users (
-  password_hash, email, display_name
+  password_hash, username, display_name
 ) VALUES (
   ?, ?, ?
 )
@@ -10,13 +10,13 @@ RETURNING *;
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
 
--- name: ReadUserByEmail :one
+-- name: ReadUserByUsername :one
 SELECT * FROM users
-WHERE email = ? LIMIT 1;
+WHERE username = ? LIMIT 1;
 
 -- name: UpdateUser :one
 UPDATE users SET
-email = coalesce(sqlc.narg('email'), email),
+username = coalesce(sqlc.narg('username'), username),
 display_name = coalesce(sqlc.narg('display_name'), display_name),
 updated_at = CURRENT_TIMESTAMP
 WHERE id = sqlc.arg('id')
