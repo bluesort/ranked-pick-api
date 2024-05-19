@@ -13,6 +13,7 @@ type User struct {
 	DisplayName string `json:"display_name,omitempty"`
 }
 
+var acceptedUsernameSymbols = []rune{'-', '_'}
 var acceptedPasswordSymbols = []rune{'!', '#', '$', '%', '&', '*', '+', '-', '/', '=', '?', '^', '_', '~', '@'}
 
 func ValidateUsername(username string) error {
@@ -24,8 +25,11 @@ func ValidateUsername(username string) error {
 		return errors.NewInputError("username must be 100 characters or less")
 	}
 
-	// TODO: Validate only letters, numbers, -, and _
-
+	for _, char := range username {
+		if !unicode.IsDigit(char) && !unicode.IsLetter(char) && !slices.Contains(acceptedUsernameSymbols, char) {
+			return errors.NewInputError("username can only contain letters, numbers, hyphens, and underscores")
+		}
+	}
 	return nil
 }
 
