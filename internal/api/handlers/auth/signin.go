@@ -18,7 +18,7 @@ func Signin(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 	params := iparams.(*SigninParams)
 	invalidCredsErr := errors.NewInputError("invalid username or password")
 
-	user, err := tx.ReadUserByEmail(ctx, params.Username)
+	user, err := tx.ReadUserByUsername(ctx, params.Username)
 	if err == sql.ErrNoRows {
 		return nil, invalidCredsErr
 	} else if err != nil {

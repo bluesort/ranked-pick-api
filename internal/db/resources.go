@@ -27,7 +27,7 @@ func NewSurveyOption(option *SurveyOption) *resources.SurveyOption {
 func NewUser(user *User) *resources.User {
 	return &resources.User{
 		Id:          user.ID,
-		Email:       user.Email,
+		Username:    user.Username,
 		DisplayName: user.DisplayName.String,
 	}
 }

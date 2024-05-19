@@ -21,8 +21,11 @@ func ValidateUsername(username string) error {
 		return errors.NewInputError("missing username")
 	}
 
-	if len(username) > 100 {
-		return errors.NewInputError("username must be 100 characters or less")
+	if len(username) < 3 {
+		return errors.NewInputError("username must be at least 3 characters")
+	}
+	if len(username) > 60 {
+		return errors.NewInputError("username must be 60 characters or less")
 	}
 
 	for _, char := range username {
