@@ -308,6 +308,45 @@ func (route *Route) Handler(handler interface{}, paramStruct ...interface{}) {
 				WriteError(w, err)
 				return
 			}
+		case func(*common.Context, *db.Queries, int64, interface{}) (interface{}, error):
+			ctx, err := common.NewContext(w, r)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			idStr := chi.URLParam(r, "id")
+			id, err := strconv.ParseInt(idStr, 10, 64)
+			if err != nil {
+				WriteError(w, "Invalid id")
+				return
+			}
+
+			params, err := extractParams(r, paramStruct[0])
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			tx, err := config.Config.Db.BeginTx(ctx, nil)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+			defer tx.Rollback()
+			txQueries := config.Config.Queries.WithTx(tx)
+
+			resp, err = h(ctx, txQueries, id, params)
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				WriteError(w, err)
+				return
+			}
 		default:
 			WriteError(w, errors.New("unrecognized handler"))
 			return

@@ -3,6 +3,7 @@ package api
 import (
 	auth_handlers "github.com/carterjackson/ranked-pick-api/internal/api/handlers/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/surveys"
+	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/users"
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/go-chi/chi/v5"
@@ -44,6 +45,9 @@ func NewRouter() *chi.Mux {
 		Get(authedRouter, "/surveys/{id}/options").Handler(surveys.ListOptions)
 		Get(authedRouter, "/surveys/{id}/results").Handler(surveys.Results)
 		Post(authedRouter, "/surveys/{id}/vote").Handler(surveys.Vote, &surveys.VoteParams{})
+
+		// Users
+		Put(authedRouter, "/users/{id}").Handler(users.Update, &users.UpdateParams{})
 	})
 
 	return router

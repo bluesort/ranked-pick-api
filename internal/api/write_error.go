@@ -14,6 +14,9 @@ func WriteError(w http.ResponseWriter, err interface{}) {
 	case *errors.InputError:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(errorResp(errVal.Message))
+	case *errors.NotFoundError:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(errorResp(errVal.Error()))
 	case *errors.AuthError:
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write(errorResp(errVal.Error()))
