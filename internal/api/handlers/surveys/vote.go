@@ -27,7 +27,7 @@ func Vote(ctx *common.Context, tx *db.Queries, id int64, iparams interface{}) er
 
 		_, err = tx.UpsertSurveyResponse(ctx, db.UpsertSurveyResponseParams{
 			SurveyID:       id,
-			UserID:         ctx.UserId,
+			UserID:         db.NewNullInt64(ctx.UserId),
 			SurveyOptionID: optionId,
 			Rank:           int64(i),
 		})

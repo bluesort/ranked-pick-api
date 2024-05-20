@@ -10,6 +10,17 @@ import (
 	"database/sql"
 )
 
+const anonymizeSurveyResponsesForUser = `-- name: AnonymizeSurveyResponsesForUser :exec
+UPDATE survey_responses SET
+user_id = NULL
+WHERE user_id = ?
+`
+
+func (q *Queries) AnonymizeSurveyResponsesForUser(ctx context.Context, userID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, anonymizeSurveyResponsesForUser, userID)
+	return err
+}
+
 const countSurveyResponsesForSurvey = `-- name: CountSurveyResponsesForSurvey :one
 SELECT COUNT(DISTINCT user_id) FROM survey_responses
 WHERE survey_id = ?
@@ -32,8 +43,18 @@ func (q *Queries) DeleteSurveyResponse(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteSurveyResponsesForSurvey = `-- name: DeleteSurveyResponsesForSurvey :exec
+DELETE FROM survey_responses
+WHERE survey_id = ?
+`
+
+func (q *Queries) DeleteSurveyResponsesForSurvey(ctx context.Context, surveyID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteSurveyResponsesForSurvey, surveyID)
+	return err
+}
+
 const listSurveyResponsesForSurvey = `-- name: ListSurveyResponsesForSurvey :many
-SELECT id, survey_id, survey_option_id, user_id, rank, created_at, updated_at FROM survey_responses
+SELECT id, survey_id, survey_option_id, rank, user_id, created_at, updated_at FROM survey_responses
 WHERE survey_id = ?
 ORDER BY id ASC LIMIT 100
 `
@@ -51,8 +72,8 @@ func (q *Queries) ListSurveyResponsesForSurvey(ctx context.Context, surveyID int
 			&i.ID,
 			&i.SurveyID,
 			&i.SurveyOptionID,
-			&i.UserID,
 			&i.Rank,
+			&i.UserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -70,7 +91,7 @@ func (q *Queries) ListSurveyResponsesForSurvey(ctx context.Context, surveyID int
 }
 
 const listSurveyResponsesForSurveyUser = `-- name: ListSurveyResponsesForSurveyUser :many
-SELECT id, survey_id, survey_option_id, user_id, rank, created_at, updated_at FROM survey_responses
+SELECT id, survey_id, survey_option_id, rank, user_id, created_at, updated_at FROM survey_responses
 WHERE survey_id = ?
 AND user_id = ?
 ORDER BY rank ASC LIMIT 100
@@ -78,7 +99,7 @@ ORDER BY rank ASC LIMIT 100
 
 type ListSurveyResponsesForSurveyUserParams struct {
 	SurveyID int64
-	UserID   int64
+	UserID   sql.NullInt64
 }
 
 func (q *Queries) ListSurveyResponsesForSurveyUser(ctx context.Context, arg ListSurveyResponsesForSurveyUserParams) ([]SurveyResponse, error) {
@@ -94,8 +115,8 @@ func (q *Queries) ListSurveyResponsesForSurveyUser(ctx context.Context, arg List
 			&i.ID,
 			&i.SurveyID,
 			&i.SurveyOptionID,
-			&i.UserID,
 			&i.Rank,
+			&i.UserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -119,7 +140,7 @@ survey_option_id = coalesce(?3, survey_option_id),
 user_id = coalesce(?4, user_id),
 rank = coalesce(?5, rank)
 WHERE id = ?
-RETURNING id, survey_id, survey_option_id, user_id, rank, created_at, updated_at
+RETURNING id, survey_id, survey_option_id, rank, user_id, created_at, updated_at
 `
 
 type UpdateSurveyResponseParams struct {
@@ -143,8 +164,8 @@ func (q *Queries) UpdateSurveyResponse(ctx context.Context, arg UpdateSurveyResp
 		&i.ID,
 		&i.SurveyID,
 		&i.SurveyOptionID,
-		&i.UserID,
 		&i.Rank,
+		&i.UserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -163,13 +184,13 @@ ON CONFLICT (user_id, survey_option_id) DO UPDATE SET
 	survey_option_id = EXCLUDED.survey_option_id,
 	user_id = EXCLUDED.user_id,
 	rank = EXCLUDED.rank
-RETURNING id, survey_id, survey_option_id, user_id, rank, created_at, updated_at
+RETURNING id, survey_id, survey_option_id, rank, user_id, created_at, updated_at
 `
 
 type UpsertSurveyResponseParams struct {
 	SurveyID       int64
 	SurveyOptionID int64
-	UserID         int64
+	UserID         sql.NullInt64
 	Rank           int64
 }
 
@@ -186,8 +207,8 @@ func (q *Queries) UpsertSurveyResponse(ctx context.Context, arg UpsertSurveyResp
 		&i.ID,
 		&i.SurveyID,
 		&i.SurveyOptionID,
-		&i.UserID,
 		&i.Rank,
+		&i.UserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

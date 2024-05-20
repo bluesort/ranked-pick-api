@@ -48,6 +48,7 @@ func NewRouter() *chi.Mux {
 
 		// Users
 		Put(authedRouter, "/users/{id}").Handler(users.Update, &users.UpdateParams{})
+		Delete(authedRouter, "/users/{id}").Handler(users.Delete)
 	})
 
 	return router

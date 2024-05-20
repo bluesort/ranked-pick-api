@@ -28,7 +28,7 @@ func Update(ctx *common.Context, tx *db.Queries, id int64, iparams interface{}) 
 	if params.Username != "" && params.Username != existingUser.Username {
 		_, err = ctx.Queries.ReadUserByUsername(ctx, params.Username)
 		if err == nil {
-			return nil, errors.NewInputError("username already in use")
+			return nil, errors.NewInputError("username unavailable")
 		} else if err != sql.ErrNoRows {
 			return nil, err
 		}

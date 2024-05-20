@@ -32,8 +32,8 @@ type SurveyResponse struct {
 	ID             int64
 	SurveyID       int64
 	SurveyOptionID int64
-	UserID         int64
 	Rank           int64
+	UserID         sql.NullInt64
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

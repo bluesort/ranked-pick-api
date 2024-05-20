@@ -59,6 +59,16 @@ func (q *Queries) DeleteSurvey(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteSurveysForUser = `-- name: DeleteSurveysForUser :exec
+DELETE FROM surveys
+WHERE user_id = ?
+`
+
+func (q *Queries) DeleteSurveysForUser(ctx context.Context, userID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteSurveysForUser, userID)
+	return err
+}
+
 const listSurveys = `-- name: ListSurveys :many
 SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
 ORDER BY id DESC LIMIT 100
@@ -96,14 +106,14 @@ func (q *Queries) ListSurveys(ctx context.Context) ([]Survey, error) {
 	return items, nil
 }
 
-const listUserSurveys = `-- name: ListUserSurveys :many
+const listSurveysForUser = `-- name: ListSurveysForUser :many
 SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
 WHERE user_id = ?
 ORDER BY id DESC LIMIT 100
 `
 
-func (q *Queries) ListUserSurveys(ctx context.Context, userID int64) ([]Survey, error) {
-	rows, err := q.db.QueryContext(ctx, listUserSurveys, userID)
+func (q *Queries) ListSurveysForUser(ctx context.Context, userID int64) ([]Survey, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveysForUser, userID)
 	if err != nil {
 		return nil, err
 	}

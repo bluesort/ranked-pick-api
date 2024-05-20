@@ -40,3 +40,12 @@ RETURNING *;
 -- name: DeleteSurveyResponse :exec
 DELETE FROM survey_responses
 WHERE id = ?;
+
+-- name: DeleteSurveyResponsesForSurvey :exec
+DELETE FROM survey_responses
+WHERE survey_id = ?;
+
+-- name: AnonymizeSurveyResponsesForUser :exec
+UPDATE survey_responses SET
+user_id = NULL
+WHERE user_id = ?;

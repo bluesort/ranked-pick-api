@@ -14,7 +14,7 @@ WHERE id = ? LIMIT 1;
 SELECT * FROM surveys
 ORDER BY id DESC LIMIT 100;
 
--- name: ListUserSurveys :many
+-- name: ListSurveysForUser :many
 SELECT * FROM surveys
 WHERE user_id = ?
 ORDER BY id DESC LIMIT 100;

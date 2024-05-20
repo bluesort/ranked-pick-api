@@ -46,6 +46,16 @@ func (q *Queries) DeleteSurveyOption(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteSurveyOptionsForSurvey = `-- name: DeleteSurveyOptionsForSurvey :exec
+DELETE FROM survey_options
+WHERE survey_id = ?
+`
+
+func (q *Queries) DeleteSurveyOptionsForSurvey(ctx context.Context, surveyID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteSurveyOptionsForSurvey, surveyID)
+	return err
+}
+
 const listSurveyOptionsForSurvey = `-- name: ListSurveyOptionsForSurvey :many
 SELECT id, survey_id, title, created_at, updated_at FROM survey_options
 WHERE survey_id = ?

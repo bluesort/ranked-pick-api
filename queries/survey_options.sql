@@ -24,3 +24,7 @@ RETURNING *;
 -- name: DeleteSurveyOption :exec
 DELETE FROM survey_options
 WHERE id = ?;
+
+-- name: DeleteSurveyOptionsForSurvey :exec
+DELETE FROM survey_options
+WHERE survey_id = ?;

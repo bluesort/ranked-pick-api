@@ -46,7 +46,7 @@ func Signup(ctx *common.Context, tx *db.Queries, iparams interface{}) (interface
 
 	_, err = tx.ReadUserByUsername(ctx, params.Username)
 	if err == nil {
-		return nil, errors.NewInputError("username already in use")
+		return nil, errors.NewInputError("username unavailable")
 	} else if err != sql.ErrNoRows {
 		return nil, err
 	}

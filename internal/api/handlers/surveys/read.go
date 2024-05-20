@@ -1,13 +1,18 @@
 package surveys
 
 import (
+	"database/sql"
+
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 func Read(ctx *common.Context, id int64) (interface{}, error) {
 	dbSurvey, err := ctx.Queries.ReadSurvey(ctx, id)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, errors.NewNotFoundError()
+	} else if err != nil {
 		return nil, err
 	}
 	survey := db.NewSurvey(&dbSurvey)
