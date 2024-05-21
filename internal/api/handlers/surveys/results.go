@@ -1,10 +1,12 @@
 package surveys
 
 import (
+	"database/sql"
 	"slices"
 
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/errors"
 )
 
 type OptionResult struct {
@@ -18,7 +20,15 @@ type ResultsResp struct {
 }
 
 func Results(ctx *common.Context, tx *db.Queries, id int64) (interface{}, error) {
-	// TOOD: Error if ctx user isn't survey creator
+	dbSurvey, err := ctx.Queries.ReadSurvey(ctx, id)
+	if err == sql.ErrNoRows {
+		return nil, errors.NewNotFoundError()
+	} else if err != nil {
+		return nil, err
+	}
+	if dbSurvey.UserID != ctx.UserId {
+		return nil, errors.NewForbiddenError()
+	}
 
 	options, err := tx.ListSurveyOptionsForSurvey(ctx, id)
 	if err != nil {

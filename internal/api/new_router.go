@@ -45,6 +45,7 @@ func NewRouter() *chi.Mux {
 		Get(authedRouter, "/surveys/{id}/options").Handler(surveys.ListOptions)
 		Get(authedRouter, "/surveys/{id}/results").Handler(surveys.Results)
 		Post(authedRouter, "/surveys/{id}/vote").Handler(surveys.Vote, &surveys.VoteParams{})
+		Get(authedRouter, "/surveys/{id}/responses").Handler(surveys.ListResponses, &surveys.ListResponsesParams{})
 
 		// Users
 		Put(authedRouter, "/users/{id}").Handler(users.Update, &users.UpdateParams{})
