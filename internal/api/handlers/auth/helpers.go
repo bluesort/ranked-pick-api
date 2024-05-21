@@ -8,6 +8,7 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/env"
 	"github.com/carterjackson/ranked-pick-api/internal/errors"
 	"github.com/carterjackson/ranked-pick-api/internal/resources"
 )
@@ -55,7 +56,7 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 		Expires:  exp,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   false, // TODO: set to true before deployment
+		Secure:   env.GetBool("SECURE_COOKIES", true),
 		Path:     "/api/auth",
 	}
 	http.SetCookie(resp, &cookie)

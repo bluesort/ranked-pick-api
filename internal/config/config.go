@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/env"
 	"github.com/go-chi/jwtauth/v5"
 )
 
@@ -20,8 +21,8 @@ var Config *AppConfig
 
 func InitConfig() {
 	Config = &AppConfig{
-		AccessTokenAuth:  jwtauth.New("HS256", []byte("secret1"), nil), // TODO: Move secret to env
-		RefreshTokenAuth: jwtauth.New("HS256", []byte("secret2"), nil), // TODO: Move secret to env
+		AccessTokenAuth:  jwtauth.New("HS256", []byte(env.GetRequiredString("ACCESS_TOKEN_SECRET")), nil),  // TODO: Move secret to env
+		RefreshTokenAuth: jwtauth.New("HS256", []byte(env.GetRequiredString("REFRESH_TOKEN_SECRET")), nil), // TODO: Move secret to env
 	}
 	ParseFlags()
 	PrepareDatabase()

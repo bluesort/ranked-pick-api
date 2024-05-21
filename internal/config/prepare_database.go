@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/carterjackson/ranked-pick-api/internal/db"
+	"github.com/carterjackson/ranked-pick-api/internal/env"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -47,9 +48,8 @@ func PrepareDatabase() {
 		log.Println("Migrations run")
 	}
 
-	// TODO: Pull db url into env var
 	// Init db connection
-	Config.Db, err = sql.Open("sqlite3", "sqlite3.db")
+	Config.Db, err = sql.Open("sqlite3", env.GetString("DB_URL", "sqlite3.db"))
 	if err != nil {
 		log.Fatal(err)
 	}

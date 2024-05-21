@@ -12,8 +12,6 @@ func ListOptions(ctx *common.Context, tx *db.Queries, id int64) (interface{}, er
 		return nil, err
 	}
 
-	// TODO: Use previous vote order if user has voted
-
 	optionsResp := make([]*resources.SurveyOption, len(options))
 	for i, option := range options {
 		optionsResp[i] = db.NewSurveyOption(&option)

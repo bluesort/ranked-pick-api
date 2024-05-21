@@ -6,6 +6,10 @@ services:
       - .:/app:delegated
       - $GOPATH:/go
       - $GOCACHE:/root/.cache/go-build
+    environment:
+      - SECURE_COOKIES=false
+      - ACCESS_TOKEN_SECRET=access_secret
+      - REFRESH_TOKEN_SECRET=refresh_secret
     ports:
       - 3000:3000
     working_dir: /app
