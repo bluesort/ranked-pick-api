@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	auth_handlers "github.com/carterjackson/ranked-pick-api/internal/api/handlers/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/surveys"
 	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/users"
@@ -8,16 +10,23 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/common"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
+)
+
+const (
+	RequestPerMinuteLimit = 100
+	RequestTimeoutSeconds = 60
 )
 
 func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 
-	// TODO: Add rate limiting
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
+	router.Use(httprate.LimitByIP(RequestPerMinuteLimit, 1*time.Minute))
+	router.Use(middleware.Timeout(RequestTimeoutSeconds * time.Second))
 
 	Get(router, "/status").Handler(func(ctx *common.Context) (interface{}, error) {
 		return "ready", nil
