@@ -17,7 +17,7 @@ func Update(ctx *common.Context, tx *db.Queries, id int64, iparams interface{}) 
 	params := iparams.(*UpdateParams)
 
 	if ctx.UserId != id {
-		return nil, errors.NewAuthError()
+		return nil, errors.NewForbiddenError()
 	}
 
 	existingUser, err := ctx.Queries.ReadUser(ctx, id)

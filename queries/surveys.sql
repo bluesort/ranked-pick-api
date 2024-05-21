@@ -7,17 +7,39 @@ INSERT INTO surveys (
 RETURNING *;
 
 -- name: ReadSurvey :one
-SELECT * FROM surveys
-WHERE id = ? LIMIT 1;
+SELECT surveys.*, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+WHERE surveys.id = ?
+GROUP BY surveys.id LIMIT 1;
 
 -- name: ListSurveys :many
-SELECT * FROM surveys
-ORDER BY id DESC LIMIT 100;
+SELECT surveys.*, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+ORDER BY surveys.id DESC LIMIT 100;
 
 -- name: ListSurveysForUser :many
-SELECT * FROM surveys
-WHERE user_id = ?
-ORDER BY id DESC LIMIT 100;
+SELECT surveys.*, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+WHERE surveys.user_id = ?
+GROUP BY surveys.id
+ORDER BY surveys.id DESC LIMIT 100;
+
+-- name: ListSurveysForUserResponded :many
+SELECT surveys.*, COUNT(sr.id) AS response_count FROM surveys
+JOIN survey_responses sr
+ON sr.survey_id = surveys.id
+AND sr.rank = 0
+WHERE EXISTS (
+  SELECT 1 FROM survey_responses WHERE survey_responses.id = sr.id AND survey_responses.user_id = ?
+)
+GROUP BY surveys.id
+ORDER BY surveys.id DESC LIMIT 100;
 
 -- name: UpdateSurvey :one
 UPDATE surveys SET

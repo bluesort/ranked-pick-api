@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createSurvey = `-- name: CreateSurvey :one
@@ -59,30 +60,35 @@ func (q *Queries) DeleteSurvey(ctx context.Context, id int64) error {
 	return err
 }
 
-const deleteSurveysForUser = `-- name: DeleteSurveysForUser :exec
-DELETE FROM surveys
-WHERE user_id = ?
+const listSurveys = `-- name: ListSurveys :many
+SELECT surveys.id, surveys.user_id, surveys.title, surveys.state, surveys.visibility, surveys.description, surveys.created_at, surveys.updated_at, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+ORDER BY surveys.id DESC LIMIT 100
 `
 
-func (q *Queries) DeleteSurveysForUser(ctx context.Context, userID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteSurveysForUser, userID)
-	return err
+type ListSurveysRow struct {
+	ID            int64
+	UserID        int64
+	Title         string
+	State         string
+	Visibility    string
+	Description   sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ResponseCount int64
 }
 
-const listSurveys = `-- name: ListSurveys :many
-SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
-ORDER BY id DESC LIMIT 100
-`
-
-func (q *Queries) ListSurveys(ctx context.Context) ([]Survey, error) {
+func (q *Queries) ListSurveys(ctx context.Context) ([]ListSurveysRow, error) {
 	rows, err := q.db.QueryContext(ctx, listSurveys)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Survey
+	var items []ListSurveysRow
 	for rows.Next() {
-		var i Survey
+		var i ListSurveysRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
@@ -92,6 +98,7 @@ func (q *Queries) ListSurveys(ctx context.Context) ([]Survey, error) {
 			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ResponseCount,
 		); err != nil {
 			return nil, err
 		}
@@ -107,20 +114,36 @@ func (q *Queries) ListSurveys(ctx context.Context) ([]Survey, error) {
 }
 
 const listSurveysForUser = `-- name: ListSurveysForUser :many
-SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
-WHERE user_id = ?
-ORDER BY id DESC LIMIT 100
+SELECT surveys.id, surveys.user_id, surveys.title, surveys.state, surveys.visibility, surveys.description, surveys.created_at, surveys.updated_at, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+WHERE surveys.user_id = ?
+GROUP BY surveys.id
+ORDER BY surveys.id DESC LIMIT 100
 `
 
-func (q *Queries) ListSurveysForUser(ctx context.Context, userID int64) ([]Survey, error) {
+type ListSurveysForUserRow struct {
+	ID            int64
+	UserID        int64
+	Title         string
+	State         string
+	Visibility    string
+	Description   sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ResponseCount int64
+}
+
+func (q *Queries) ListSurveysForUser(ctx context.Context, userID int64) ([]ListSurveysForUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, listSurveysForUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Survey
+	var items []ListSurveysForUserRow
 	for rows.Next() {
-		var i Survey
+		var i ListSurveysForUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
@@ -130,6 +153,64 @@ func (q *Queries) ListSurveysForUser(ctx context.Context, userID int64) ([]Surve
 			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ResponseCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSurveysForUserResponded = `-- name: ListSurveysForUserResponded :many
+SELECT surveys.id, surveys.user_id, surveys.title, surveys.state, surveys.visibility, surveys.description, surveys.created_at, surveys.updated_at, COUNT(sr.id) AS response_count FROM surveys
+JOIN survey_responses sr
+ON sr.survey_id = surveys.id
+AND sr.rank = 0
+WHERE EXISTS (
+  SELECT 1 FROM survey_responses WHERE survey_responses.id = sr.id AND survey_responses.user_id = ?
+)
+GROUP BY surveys.id
+ORDER BY surveys.id DESC LIMIT 100
+`
+
+type ListSurveysForUserRespondedRow struct {
+	ID            int64
+	UserID        int64
+	Title         string
+	State         string
+	Visibility    string
+	Description   sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ResponseCount int64
+}
+
+func (q *Queries) ListSurveysForUserResponded(ctx context.Context, userID sql.NullInt64) ([]ListSurveysForUserRespondedRow, error) {
+	rows, err := q.db.QueryContext(ctx, listSurveysForUserResponded, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSurveysForUserRespondedRow
+	for rows.Next() {
+		var i ListSurveysForUserRespondedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.State,
+			&i.Visibility,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ResponseCount,
 		); err != nil {
 			return nil, err
 		}
@@ -145,13 +226,29 @@ func (q *Queries) ListSurveysForUser(ctx context.Context, userID int64) ([]Surve
 }
 
 const readSurvey = `-- name: ReadSurvey :one
-SELECT id, user_id, title, state, visibility, description, created_at, updated_at FROM surveys
-WHERE id = ? LIMIT 1
+SELECT surveys.id, surveys.user_id, surveys.title, surveys.state, surveys.visibility, surveys.description, surveys.created_at, surveys.updated_at, COUNT(survey_responses.id) AS response_count FROM surveys
+LEFT JOIN survey_responses
+ON survey_responses.survey_id = surveys.id
+AND survey_responses.rank = 0
+WHERE surveys.id = ?
+GROUP BY surveys.id LIMIT 1
 `
 
-func (q *Queries) ReadSurvey(ctx context.Context, id int64) (Survey, error) {
+type ReadSurveyRow struct {
+	ID            int64
+	UserID        int64
+	Title         string
+	State         string
+	Visibility    string
+	Description   sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	ResponseCount int64
+}
+
+func (q *Queries) ReadSurvey(ctx context.Context, id int64) (ReadSurveyRow, error) {
 	row := q.db.QueryRowContext(ctx, readSurvey, id)
-	var i Survey
+	var i ReadSurveyRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
@@ -161,6 +258,7 @@ func (q *Queries) ReadSurvey(ctx context.Context, id int64) (Survey, error) {
 		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ResponseCount,
 	)
 	return i, err
 }

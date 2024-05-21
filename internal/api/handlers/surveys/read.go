@@ -15,7 +15,8 @@ func Read(ctx *common.Context, id int64) (interface{}, error) {
 	} else if err != nil {
 		return nil, err
 	}
-	survey := db.NewSurvey(&dbSurvey)
+	surveyRow := db.SurveyRow(dbSurvey)
+	survey := db.NewSurveyFromRow(&surveyRow)
 
 	count, err := ctx.Queries.CountSurveyResponsesForSurvey(ctx, survey.Id)
 	if err != nil {
