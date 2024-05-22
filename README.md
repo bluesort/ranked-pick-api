@@ -4,7 +4,7 @@
 
 `ranked-pick-api` is the backend for [Ranked Pick](http://rankedpick.com), a web application for creating and responding to ranked choice style surveys.
 
-Weblient source can be found [here](https://github.com/carterjackson/ranked-pick-web).
+Web client source can be found [here](https://github.com/carterjackson/ranked-pick-web).
 
 ## Development
 
