@@ -1,6 +1,10 @@
-# DB
+# Database
 
-Access the local development DB:
+`ranked-pick-api` uses a SQLite3 database for storage.
+
+## Console
+
+To access the local database:
 ```bash
 export DB_URL="sqlite3.db"
 sqlite3 $DB_URL

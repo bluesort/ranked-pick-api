@@ -8,11 +8,13 @@ Web client source can be found [here](https://github.com/carterjackson/ranked-pi
 
 ## Development
 
+### Database Management
+
 See the [database doc](./docs/database.md) for DB management.
 
 ### Docker
 
-The service is run locally through [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/).
+The service is run locally with [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
 The `--service-ports` flag is required to open ports on the host.
 
