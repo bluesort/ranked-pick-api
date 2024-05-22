@@ -1,17 +1,14 @@
 # DB
 
-```sh
-export DB_URL="sqlite3.db"
-```
-
 Access the local development DB:
 ```bash
+export DB_URL="sqlite3.db"
 sqlite3 $DB_URL
 ```
 
 ## Migrations
 
-See [golang-migrate](https://github.com/golang-migrate/migrate/tree/master) for additional documentation.
+[golang-migrate](https://github.com/golang-migrate/migrate/tree/master) is used for migration management.
 
 [Command installation](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md)
 ```bash
@@ -26,6 +23,11 @@ migrate create -ext sql -dir migrations -seq sample_migration_name
 To run up migrations:
 ```bash
 migrate -database sqlite3://${DB_URL} -path db/migrations up
+```
+
+To roll back a single migration:
+```bash
+migrate -database sqlite3://${DB_URL} -path db/migrations down 1
 ```
 
 To drop the db:

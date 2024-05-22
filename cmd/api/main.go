@@ -14,6 +14,8 @@ func main() {
 	config.InitConfig()
 	r := api.NewRouter()
 
+	log.Println("test log")
+
 	log.Printf("Router listening on port %d\n", config.Config.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Config.Port), r)
 	if err != nil {
