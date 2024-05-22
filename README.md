@@ -2,33 +2,21 @@
 
 ## Introduction
 
-`ranked-pick-api` is the API source for [Ranked Pick](http://rankedpick.com), a web application designed for creating and responding to ranked choice style surveys.
+`ranked-pick-api` is the backend for [Ranked Pick](http://rankedpick.com), a web application for creating and responding to ranked choice style surveys.
 
-**Features**
-
-- Create and share ranked choice surveys
-- Respond to surveys that have been shared with you
-- **TODO**: Share surveys publicly, by link, or via invite
-- **TODO**: Allow participants to nominate their own options
+Weblient source can be found [here](https://github.com/carterjackson/ranked-pick-web).
 
 ## Development
 
 See the [database doc](./docs/database.md) for DB management.
 
-### Go
-
-`$GOPATH` and `$GOCACHE` are used by the container to speed up builds and avoid reinstallation.
-
 ### Docker
 
-`$GOPATH`
+The service is run locally through [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/).
 
 ```bash
-docker compose run --service-ports rp-api
+docker compose run --rm --build --service-ports rp-api
 ```
-
-### Database Management
-
 
 ## Testing
 
