@@ -14,6 +14,8 @@ See the [database doc](./docs/database.md) for DB management.
 
 The service is run locally through [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/).
 
+The `--service-ports` flag is required to open ports on the host.
+
 ```bash
 docker compose run --rm --build --service-ports rp-api
 ```
