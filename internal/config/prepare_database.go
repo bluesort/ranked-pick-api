@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/carterjackson/ranked-pick-api/internal/db"
@@ -13,7 +14,7 @@ import (
 
 func PrepareDatabase() {
 	dbMigrate, err := migrate.New(
-		"file://migrations",
+		fmt.Sprintf("file://%s", env.GetString("DB_MIGRATIONS_DIR", "migrations")),
 		"sqlite3://sqlite3.db?x-no-tx-wrap=true",
 	)
 	if err != nil {

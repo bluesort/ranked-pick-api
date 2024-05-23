@@ -6,10 +6,9 @@ services:
     volumes:
       - .:/app:delegated
     environment:
-      - DB_URL=sqlite3.db
       - SECURE_COOKIES=false
-      - ACCESS_TOKEN_SECRET=access_secret
-      - REFRESH_TOKEN_SECRET=refresh_secret
+      - ACCESS_TOKEN_SECRET=dev_access_secret
+      - REFRESH_TOKEN_SECRET=dev_refresh_secret
     ports:
       - 3000:3000
     working_dir: /app

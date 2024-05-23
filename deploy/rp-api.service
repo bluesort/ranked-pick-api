@@ -1,8 +1,11 @@
+# /etc/systemd/system/rp-api.service
+
 [Unit]
 Description=Run the ranked-pick-api server
 
 [Service]
-ExecStart=/bin/bash /usr/local/bin/rp-api
+EnvironmentFile=/etc/ranked-pick-api/env
+ExecStart=rp-api
 
 [Install]
 WantedBy=multi-user.target

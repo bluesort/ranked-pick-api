@@ -21,8 +21,8 @@ var Config *AppConfig
 
 func InitConfig() {
 	Config = &AppConfig{
-		AccessTokenAuth:  jwtauth.New("HS256", []byte(env.GetRequiredString("ACCESS_TOKEN_SECRET")), nil),  // TODO: Move secret to env
-		RefreshTokenAuth: jwtauth.New("HS256", []byte(env.GetRequiredString("REFRESH_TOKEN_SECRET")), nil), // TODO: Move secret to env
+		AccessTokenAuth:  jwtauth.New("HS256", []byte(env.GetRequiredString("ACCESS_TOKEN_SECRET")), nil),
+		RefreshTokenAuth: jwtauth.New("HS256", []byte(env.GetRequiredString("REFRESH_TOKEN_SECRET")), nil),
 	}
 	ParseFlags()
 	PrepareDatabase()
