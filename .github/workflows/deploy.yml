@@ -1,12 +1,12 @@
 name: Deploy
 
 on:
-push:
-  branches: [ "main" ]
-  workflow_run:
-    workflows: ["Go build + test"]
-    types:
-      - completed
+  push:
+    branches: [ "main" ]
+    workflow_run:
+      workflows: ["Go build + test"]
+      types:
+        - completed
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: go build -o rp-api ./cmd/api/main.go
 
-    - name: Copy file via scp
+    - name: Copy executable via scp
       uses: appleboy/scp-action@master
       env:
         HOST: ${{ secrets.HOST }}
@@ -33,7 +33,7 @@ jobs:
         KEY: ${{ secrets.SSHKEY }}
       with:
         source: "rp-api"
-        target: "/usr/bin"
+        target: "/home/${{ secrets.USERNAME }}"
 
     # - name: Executing remote  command
     #   uses: appleboy/ssh-action@master
