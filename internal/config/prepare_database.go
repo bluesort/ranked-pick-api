@@ -13,9 +13,10 @@ import (
 )
 
 func PrepareDatabase() {
+	dbUrl := env.GetString("DB_URL", "sqlite3.db")
 	dbMigrate, err := migrate.New(
 		fmt.Sprintf("file://%s", env.GetString("DB_MIGRATIONS_DIR", "migrations")),
-		"sqlite3://sqlite3.db?x-no-tx-wrap=true",
+		fmt.Sprintf("sqlite3://%s?x-no-tx-wrap=true", dbUrl),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +50,7 @@ func PrepareDatabase() {
 	}
 
 	// Init db connection
-	Config.Db, err = sql.Open("sqlite3", env.GetString("DB_URL", "sqlite3.db"))
+	Config.Db, err = sql.Open("sqlite3", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
