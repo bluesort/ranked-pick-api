@@ -1,6 +1,12 @@
 name: Deploy
 
-on: [push]
+on:
+push:
+  branches: [ "main" ]
+  workflow_run:
+    workflows: ["Go build + test"]
+    types:
+      - completed
 
 jobs:
   build:
