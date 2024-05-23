@@ -16,7 +16,7 @@ jobs:
         go-version: '1.22'
 
     - name: Build
-      run: go build -o rp-api ./...
+      run: go build -o rp-api ./cmd/api/main.go
 
     - name: Copy file via scp
       uses: appleboy/scp-action@master
