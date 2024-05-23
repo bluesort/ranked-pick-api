@@ -1,0 +1,8 @@
+[Unit]
+Description=Run the ranked-pick-api server
+
+[Service]
+ExecStart=/bin/bash /usr/local/bin/rp-api
+
+[Install]
+WantedBy=multi-user.target

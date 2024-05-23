@@ -32,7 +32,8 @@ jobs:
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
         source: "rp-api"
-        target: "/home/${{ secrets.USERNAME }}"
+        target: "/usr/local/bin"
+        overwrite: true
 
     # - name: Executing remote  command
     #   uses: appleboy/ssh-action@master
