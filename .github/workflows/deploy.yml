@@ -43,7 +43,7 @@ jobs:
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
         source: "./migrations"
-        target: "/etc/ranked-pick-api/migrations"
+        target: "/etc/ranked-pick-api"
         overwrite: true
 
     - name: Executing remote  command
