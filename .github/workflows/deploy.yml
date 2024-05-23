@@ -29,11 +29,11 @@ jobs:
         source: "rp-api"
         target: "/usr/bin"
 
-    - name: Executing remote  command
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        USERNAME: ${{ secrets.USERNAME }}
-        PORT: ${{ secrets.PORT }}
-        KEY: ${{ secrets.SSHKEY }}
-        script: cat /opt/app/README.md
+    # - name: Executing remote  command
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.HOST }}
+    #     USERNAME: ${{ secrets.USERNAME }}
+    #     PORT: ${{ secrets.PORT }}
+    #     KEY: ${{ secrets.SSHKEY }}
+    #     script:
