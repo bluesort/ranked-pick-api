@@ -24,6 +24,15 @@ jobs:
     - name: Build
       run: go build -o rp-api ./cmd/api/main.go
 
+    - name: Stopping rp-api on host
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSHKEY }}
+        script: systemctl stop rp-api
+
     - name: Copy executable via scp
       uses: appleboy/scp-action@master
       with:
@@ -46,11 +55,11 @@ jobs:
         target: "/etc/ranked-pick-api"
         overwrite: true
 
-    - name: Executing remote  command
+    - name: Restarting rp-api on host
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}
         PORT: ${{ secrets.PORT }}
         KEY: ${{ secrets.SSHKEY }}
-        script: systemctl restart rp-api
+        script: systemctl start rp-api
