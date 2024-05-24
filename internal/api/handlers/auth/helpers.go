@@ -56,7 +56,7 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 		Expires:  exp,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   env.GetBool("SECURE_COOKIES", true),
+		Secure:   env.GetBool("SECURE_STRICT", true),
 		Path:     "/api/auth",
 	}
 	http.SetCookie(resp, &cookie)

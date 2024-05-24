@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app:delegated
     environment:
-      - SECURE_COOKIES=false
+      - SECURE_STRICT=false
       - ACCESS_TOKEN_SECRET=dev_access_secret
       - REFRESH_TOKEN_SECRET=dev_refresh_secret
     ports:

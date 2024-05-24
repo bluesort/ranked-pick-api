@@ -8,9 +8,11 @@ import (
 	"github.com/carterjackson/ranked-pick-api/internal/api/handlers/users"
 	"github.com/carterjackson/ranked-pick-api/internal/auth"
 	"github.com/carterjackson/ranked-pick-api/internal/common"
+	"github.com/carterjackson/ranked-pick-api/internal/env"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
+	"github.com/unrolled/secure"
 )
 
 const (
@@ -20,6 +22,13 @@ const (
 
 func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
+
+	secureMiddleware := secure.New(secure.Options{
+		IsDevelopment: !env.GetBool("SECURE_STRICT", true),
+		SSLRedirect:   true,
+		FrameDeny:     true,
+	})
+	router.Use(secureMiddleware.Handler)
 
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
