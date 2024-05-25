@@ -50,14 +50,21 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 	if err != nil {
 		return err
 	}
+
+	// TODO: Move path to env var
+	strictCookies := env.GetBool("SECURE_STRICT", true)
+	cookiePath := "/api/auth"
+	if strictCookies {
+		cookiePath = "/auth"
+	}
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    token,
 		Expires:  exp,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   env.GetBool("SECURE_STRICT", true),
-		Path:     "/api/auth",
+		Secure:   strictCookies,
+		Path:     cookiePath,
 	}
 	http.SetCookie(resp, &cookie)
 
