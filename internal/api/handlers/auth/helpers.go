@@ -53,7 +53,7 @@ func setRefreshToken(ctx *common.Context, tx *db.Queries, resp http.ResponseWrit
 
 	// TODO: Move path to env var
 	strictCookies := env.GetBool("SECURE_STRICT", true)
-	cookiePath := "/api/auth"
+	cookiePath := "/dev_api/auth"
 	if strictCookies {
 		cookiePath = "/auth"
 	}
