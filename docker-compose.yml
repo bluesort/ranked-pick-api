@@ -8,6 +8,7 @@ services:
     environment:
       - SECURE_STRICT=false
       - ACCESS_TOKEN_SECRET=dev_access_secret
+      - CLIENT_HOST=http://localhost:8000
       - REFRESH_TOKEN_SECRET=dev_refresh_secret
     ports:
       - 3000:3000
