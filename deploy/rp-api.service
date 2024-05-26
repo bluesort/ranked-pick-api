@@ -5,7 +5,7 @@ Description=Run the ranked-pick-api server
 
 [Service]
 EnvironmentFile=/etc/ranked-pick-api/env
-ExecStart=rp-api
+ExecStart=/home/<HOST USER>/ranked-pick-api/rp-api
 
 [Install]
 WantedBy=multi-user.target

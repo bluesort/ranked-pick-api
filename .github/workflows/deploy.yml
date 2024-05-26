@@ -42,7 +42,7 @@ jobs:
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
         source: "rp-api"
-        target: "/usr/local/bin"
+        target: "/home/${{ secrets.USERNAME }}/ranked-pick-api"
         overwrite: true
 
     - name: Copy migrations via scp
@@ -53,11 +53,12 @@ jobs:
         port: ${{ secrets.PORT }}
         key: ${{ secrets.SSHKEY }}
         source: "./migrations"
-        target: "/etc/ranked-pick-api"
+        target: "/home/${{ secrets.USERNAME }}/ranked-pick-api"
         overwrite: true
 
     # NOTE: Running user must have sudo access to `/bin/systemctl start rp-api`
     - name: Restarting rp-api on host
+      if: success() || failure()
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}

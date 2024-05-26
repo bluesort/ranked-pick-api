@@ -1,5 +1,5 @@
-DB_URL=/etc/ranked-pick-api/sqlite3.db
-DB_MIGRATIONS_DIR=/etc/ranked-pick-api/migrations
+DB_URL=/home/<HOST USER>/ranked-pick-api/sqlite3.db
+DB_MIGRATIONS_DIR=/home/<HOST USER>/ranked-pick-api/migrations
 SECURE_STRICT=true
 ACCESS_TOKEN_SECRET=<prod access token secret>
 REFRESH_TOKEN_SECRET=<prod refresh token secret>
