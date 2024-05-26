@@ -36,7 +36,7 @@ JOIN survey_responses sr
 ON sr.survey_id = surveys.id
 AND sr.rank = 0
 WHERE EXISTS (
-  SELECT 1 FROM survey_responses WHERE survey_responses.id = sr.id AND survey_responses.user_id = ?
+  SELECT 1 FROM survey_responses WHERE survey_responses.survey_id = surveys.id AND survey_responses.user_id = ?
 )
 GROUP BY surveys.id
 ORDER BY surveys.id DESC LIMIT 100;
