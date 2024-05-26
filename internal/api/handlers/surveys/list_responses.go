@@ -14,7 +14,7 @@ func ListResponses(ctx *common.Context, id int64, iparams interface{}) (interfac
 
 	var err error
 	var responses []db.SurveyResponse
-	if params.UserId == 0 {
+	if params.UserId != 0 {
 		responses, err = ctx.Queries.ListSurveyResponsesForSurveyUser(ctx, db.ListSurveyResponsesForSurveyUserParams{
 			SurveyID: id,
 			UserID:   db.NewNullInt64(ctx.UserId),
